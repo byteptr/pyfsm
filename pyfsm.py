@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-myfsm.py
+pyfsm.py
 
 Module for the management, representation, and analysis of finite state machines (FSM).
 
