@@ -150,6 +150,8 @@ class FSMSysMgs:
                                  transition : str)->str:
         return f'{state0} {tsymbol} {state1} : {transition}\n'
 
+# Finite state machine exceptions. 
+# TODO: migrate exception treatement to other file
 class FSMException(Exception):
     "Base class for FSM exceptions"
     pass 
@@ -205,6 +207,7 @@ class fsm:
     :ivar warnings: If true, prints the warnings.
     :ivar debug: If true prints debug messages.
     """
+
     def __init__(self, history_len = 10) -> None:
         """
         Class constructor
@@ -428,7 +431,13 @@ class fsm:
                 warnings.warn(warnmsg) 
 
     def verify_deadStates(self)->bool:
-
+        """
+        Verifies if there are unreachable 
+        states from initial state.
+        Note: The list of dead states is available on self.dead_states 
+        :return : True if dead states are present
+        :rtype : bool
+        """
         M = self.get_allPaths()
         self.dead_states.clear() 
 
@@ -441,7 +450,7 @@ class fsm:
             return True
         return False
 
-    def get_allPaths(self):
+    def get_allPaths(self)->np.ndarray:
         """
         Calculates accessibility matrix from state transition matrix M nxn: 
         R = M+M^2+M^3+M^4+...+M^n
@@ -459,6 +468,15 @@ class fsm:
         return R
 
     def detect_closed_cycle(self, max_len:Optional[int]=None)->Optional[List]:
+        """
+        Detects if exists a closed cycles on state machine.
+        :param max_len: max length search on history 
+        :type max_len: None (by default) or integer. If None is chosen, length 
+            equals to history states length.
+        :return : List containing closed cycle. 
+        :rtype : None if no cycles or list 
+        """
+        # Mus filter all None among zeroes
         filtered_history = [past_state for past_state in \
             filter(lambda x: x is not None, self.state_history)]        
         n = len(filtered_history)
@@ -472,7 +490,16 @@ class fsm:
                 return cycle  # Cycle detected
         return None
 
-    def detect_windowed_cycles(self, max_len:Optional[int]=None)->Optional[List]:
+    def detect_windowed_cycles(self, max_len:Optional[int]=None)->Optional[List[List]]:
+        """
+        Detects cycles on a window.
+
+        :param max_len: max length search on history 
+        :type max_len: None (by default) or integer. If None is chosen, length 
+            equals to history states length.
+        :return : List containing list of cycles. 
+        :rtype : None if no cycles or list 
+        """
         filtered_history = [past_state for past_state in \
             filter(lambda x: x is not None, self.state_history)]
         n = len(filtered_history)
@@ -491,16 +518,36 @@ class fsm:
             return repeated_cycles
         return None
 
-    def set_initialState(self, ep:str): 
+    def set_initialState(self, ep:str):
+        """
+            Changes entry point (initial state) (first declared by default)
+            :param ep: Initial state name
+            :type ep: str.
+        """
         self.entry_point = ep
         self.state = self.index_dict[ep]
         self.state_history.clear()
         self.state_history.append(self.state)
     
-    def print_history(self): # TODO: Mejorar esto con StringIo 
-        print([self.states[x] for x in self.state_history if x is not None])
+    def printable_history(self)->str:
+        """
+            Creates a printable history of states.
 
-    def step(self):
+            :return : History of states 
+            :rtype : str
+        """
+        ptrbl = StringIO()
+        print([self.states[x] for x in self.state_history if x is not None],\
+              file=ptrbl)
+        return ptrbl.getvalue()
+
+    def step(self)-> None:
+        """
+            Executes one step on FSM
+
+            :return None:
+            :rtype : NoneType
+        """
         self.true_transitions.clear()
         self.true_transitions_name.clear()
         t = ''
