@@ -622,12 +622,15 @@ class fsm:
             elif v == 'tmatrix': 
                 msg += f'\n{v}:\n\n' + self.format_matrix(none_as_zero=True)+'\n\n'
                 msg += f'\n{"Accesibility Matrix"}:\n\n' + \
-                    self.format_matrix(M = self.get_allPaths(),none_as_zero=True)+'\n\n'
+                    self.printable_matrix(M = self.get_allPaths(),none_as_zero=True)+'\n\n'
         msg = msg.rstrip()
         msg += ' >\n'
         return msg
 
-    def format_matrix(self, M: None | np.ndarray = None, none_as_zero: bool = False) -> str:
+    def printable_matrix(self, M: Optional[np.ndarray] = None, none_as_zero: bool = False) -> str:
+        """
+        Pretty print (pandas like) of a viven matrix
+        """
         if M is None:
             M = self.tmatrix
         states = self.states
