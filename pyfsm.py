@@ -181,6 +181,55 @@ class FSMTransitionEvalError(FSMRuntimeException):
     pass
 
 
+@dataclass
+class gv_node_properties:
+    label : str= ''
+    shape : str = 'circle'
+    style : str = 'filled'
+    color :str = '#FF0000'
+    fillcolor : str = '#FFFFFF'
+
+    fontname : str = 'consolas'
+    fontcolor : str = '#000000'
+    fontsize : Optional[int] = 14
+
+    penwidth : Optional[int] = None
+    width : Optional[float] = None 
+    height : Optional[float] = None 
+    fixedsize : Optional[bool] = False 
+    aspect : Optional[str] = None
+
+    tooltip : Optional[str] = None
+    URL : Optional[str] = None
+    image : Optional[str] = None
+    xlabel : Optional[str] + None
+    labelloc : Optional[str] = None 
+    labeljust : Optional[str] = None
+    margin : Optional[str] = None
+
+@dataclass 
+class gv_edge_properties:
+    label : str = ''
+    xlabel : Optional[str] = None 
+    fontname : str = 'consolas'
+    fontsize : int = 14
+
+    style : Optional[str] = None 
+    color : Optional[str] = None 
+    penwidth : Optional[int] = None 
+    arrowhead : Optional[str] = 'normal'
+    arrowtail : Optional[str] = None
+    dir : Optional[str] = None 
+
+
+# TODO: doing....
+
+@dataclass 
+class gvproperties:
+    pass 
+
+
+
 class fsm:
     
     """
