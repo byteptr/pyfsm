@@ -4,8 +4,11 @@ import asyncio
 import websockets
 from aiohttp import web
 import aiofiles 
-from typing import Set, Any
+from typing import Set
+from typing import Optional
 from queue import Queue 
+from pyfsm import fsm
+
 
 class pyfsm_http_visualizer: 
     def __init__(self, http_port:int=8000, ws_port:int=8765, ws_host : str = '0.0.0.0',
@@ -19,7 +22,7 @@ class pyfsm_http_visualizer:
         self.clients: Set[websockets.WebSocketServerProtocol] = set()
         self.inbox : Queue = Queue()
         self.outbox : Queue = Queue()
-        self.fsm : Any = None # correct typing coming soon
+        self.fsm : Optional[fsm] = None
 
     def bind_fsm(self, fsm)->None:
         self.fsm = fsm
