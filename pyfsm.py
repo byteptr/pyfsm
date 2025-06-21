@@ -65,9 +65,10 @@ try:
     from typing import Optional
 except Exception as e: 
     logging.error(e)
-    raise
+    raise e
 
- __graphviz_present__ = None
+__graphviz_present__ = None
+
 try:
     from graphviz import Digraph
     __graphviz_present__ = True
