@@ -2,13 +2,12 @@ from dataclasses import dataclass, field
 from graphviz import Digraph
 import asyncio
 import websockets
-import random
 from aiohttp import web
 import aiofiles 
 from typing import Set
 
 class pyfsm_http_visualizer: 
-    def __init__(self, http_port:int=8000, ws_port:int=8765, ws_host : str = 'localhost',
+    def __init__(self, http_port:int=8000, ws_port:int=8765, ws_host : str = '0.0.0.0',
                  html_template='aioftest.html'):
 
         self.http_port = http_port
@@ -25,9 +24,8 @@ class pyfsm_http_visualizer:
     async def http_cleanup(self): 
         await asyncio.sleep(0)
 
-
     async def http_handle(self, request):
-        async with aiofiles.open('aioftest.html', 'r') as fd: 
+        async with aiofiles.open(self.html_template, 'r') as fd: 
             html = await fd.read()
         return web.Response(text=html, content_type='text/html')
 
@@ -36,28 +34,39 @@ class pyfsm_http_visualizer:
         self.app.router.add_get('/', self.http_handle)
         self.app.on_startup.append(self.http_startup)
         self.app.on_cleanup.append(self.http_cleanup)
+        # Usar AppRunner para arrancar el servidor
+        runner = web.AppRunner(self.app)
+        await runner.setup()
+
+        site = web.TCPSite(runner, host=self.ws_host, port=self.http_port)
+        await site.start()
 
     async def ws_handle(self, websocket, path):
         self.clients.add(websocket)
-
         try:
             async for message in websocket:
                 await asyncio.sleep(0)
         except websockets.exceptions.ConnectionClosedOK:
+            pass
+        finally:
             self.clients.remove(websocket)
-            await asyncio.sleep(0)
-    
+
     async def ws_broadcast(self, msg : str): 
         if self.clients: 
             await asyncio.gather(
                     *[ws.send(msg) for ws in self.clients],
-                    return_exceptions=True]
+                    return_exceptions=True
             )
 
-
-
     async def start_websocket(self):
-        async with websockets.serve(self.ws_handle, self.ws_host, self.ws_host)
+        async with websockets.serve(self.ws_handle, self.ws_host, self.ws_port):
+           await asyncio.Future() 
+
+    async def start(self):
+        await asyncio.gather(
+            visualizer.start_http_server(),
+            visualizer.start_websocket(),
+        )
 
 
 # app = web.Application()

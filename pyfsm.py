@@ -59,6 +59,7 @@ try:
     import pandas as pd
     from collections import deque
     from dataclasses import dataclass
+    from dataclasses import field
     from typing import List
     from typing import Union, Callable
     from typing import Optional
@@ -238,13 +239,16 @@ class gv_edge_properties:
     tooltip : Optional[str] = None
     URL : Optional[str] = None
     target : Optional[str] = None
-    tooltip : Optional[str] = None
 
    
 @dataclass 
 class gvproperties:
-    default_node_properties = gv_node_properties() 
-    default_edge_properties = gv_edge_properties()
+    default_node_properties : gv_node_properties = field(
+        default_factory=lambda : gv_node_properties()
+    ) 
+    default_edge_properties : gv_edge_properties = field(
+        default_factory=lambda : gv_edge_properties()
+    )
     special_nodes = dict()
     special_edges = dict()
 
@@ -256,7 +260,6 @@ class gvproperties:
 
 
 class fsm:
-    
     """
     Represents a finite state machine (FSM).
 
