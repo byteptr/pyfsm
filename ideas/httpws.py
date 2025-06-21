@@ -54,11 +54,10 @@ class pyfsm_http_visualizer:
                     return_exceptions=True]
             )
 
+
+
     async def start_websocket(self):
         async with websockets.serve(self.ws_handle, self.ws_host, self.ws_host)
-        await asyncio.Future()
-
-
 
 
 # app = web.Application()
