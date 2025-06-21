@@ -4,7 +4,8 @@ import asyncio
 import websockets
 from aiohttp import web
 import aiofiles 
-from typing import Set
+from typing import Set, Any
+from queue import Queue 
 
 class pyfsm_http_visualizer: 
     def __init__(self, http_port:int=8000, ws_port:int=8765, ws_host : str = '0.0.0.0',
@@ -16,12 +17,20 @@ class pyfsm_http_visualizer:
         self.html_template = html_template
         self.app = None
         self.clients: Set[websockets.WebSocketServerProtocol] = set()
+        self.inbox : Queue = Queue()
+        self.outbox : Queue = Queue()
+        self.fsm : Any = None # correct typing coming soon
 
-        
-    async def http_startup(self): 
+    def bind_fsm(self, fsm)->None:
+        self.fsm = fsm
+
+    async def run_fsm(self):
+        _ = await asyncio.to_thread(self.fsm, id(self.fsm))
+
+    async def http_startup(self, param): 
         await asyncio.sleep(0)
 
-    async def http_cleanup(self): 
+    async def http_cleanup(self, param): 
         await asyncio.sleep(0)
 
     async def http_handle(self, request):
@@ -60,18 +69,21 @@ class pyfsm_http_visualizer:
 
     async def start_websocket(self):
         async with websockets.serve(self.ws_handle, self.ws_host, self.ws_port):
-           await asyncio.Future() 
+            try: 
+               await asyncio.Future() 
+            except asyncio.exceptions.CancelledError: 
+                print("\nWebsockets terminate.")
 
     async def start(self):
         await asyncio.gather(
-            visualizer.start_http_server(),
-            visualizer.start_websocket(),
+            self.start_http_server(),
+            self.start_websocket(),
         )
+if __name__ == '__main__': 
 
+    service = pyfsm_http_visualizer()
+    try: 
+        asyncio.run(service.start())
+    except KeyboardInterrupt: 
+        print("Ctrl-C detected. exit()")
 
-# app = web.Application()
-# app.router.add_get('/', handle)
-#
-# if __name__ == '__main__':
-#     web.run_app(app, host='127.0.0.1', port=8000)
-#
