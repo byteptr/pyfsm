@@ -269,7 +269,6 @@ class fsm_bindings:
     loop_flag : Event = Event()
 
 
-
 class fsm:
     """
     Represents a finite state machine (FSM).

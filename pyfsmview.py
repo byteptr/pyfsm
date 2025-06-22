@@ -26,6 +26,7 @@ class pyfsm_http_visualizer:
         self.fsm_instance : Optional[fsm] = None
         self.fsmbind : fsm_bindings = fsm_bindings() 
 
+
     def bind(self, f: fsm)->None:
         self.fsm_instance = f
         self.fsm_instance.binding = self.fsmbind
@@ -34,7 +35,8 @@ class pyfsm_http_visualizer:
         pass
 
     async def run_fsm(self):
-        _ = await asyncio.to_thread(self._run, id(self.fsm_instance))
+        _ = await asyncio.to_thread(self._run)
+
 
     async def http_startup(self, param): 
         await asyncio.sleep(0)
