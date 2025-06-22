@@ -8,6 +8,7 @@ from typing import Set
 from typing import Optional
 from queue import Queue 
 from pyfsm import fsm
+from pyfsm import fsm_bindings
 
 
 class pyfsm_http_visualizer: 
@@ -22,13 +23,18 @@ class pyfsm_http_visualizer:
         self.clients: Set[websockets.WebSocketServerProtocol] = set()
         self.inbox : Queue = Queue()
         self.outbox : Queue = Queue()
-        self.fsm : Optional[fsm] = None
+        self.fsm_instance : Optional[fsm] = None
+        self.fsmbind : fsm_bindings = fsm_bindings() 
 
-    def bind_fsm(self, fsm)->None:
-        self.fsm = fsm
+    def bind(self, f: fsm)->None:
+        self.fsm_instance = f
+        self.fsm_instance.binding = self.fsmbind
+    
+    def _run(self): 
+        pass
 
     async def run_fsm(self):
-        _ = await asyncio.to_thread(self.fsm, id(self.fsm))
+        _ = await asyncio.to_thread(self._run, id(self.fsm_instance))
 
     async def http_startup(self, param): 
         await asyncio.sleep(0)

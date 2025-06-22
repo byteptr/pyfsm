@@ -63,6 +63,8 @@ try:
     from typing import List
     from typing import Union, Callable
     from typing import Optional
+    from queue import Queue
+    from threading import Event
 except Exception as e: 
     logging.error(e)
     raise e
@@ -259,6 +261,14 @@ class gvproperties:
     def del_node_properties(self, nodename):         
         del self.special_nodes[nodename]
 
+@dataclass 
+class fsm_bindings:
+    input : Queue = field(default_factory=Queue)
+    output : Queue = field(default_factory=Queue)
+    running : bool = False
+    loop_flag : Event = Event()
+
+
 
 class fsm:
     """
@@ -313,6 +323,9 @@ class fsm:
         self.check_disjoint = True 
         self.warnings = False 
         self.debug = False 
+        # Class bindings 
+        self.binding : Optional[fsm_bindings] = None
+
     
     def reset(self)->None:
         """
