@@ -2,6 +2,7 @@ from dataclasses import dataclass, field
 from graphviz import Digraph
 import asyncio
 import websockets
+from websockets.server import WebSocketServerProtocol
 from aiohttp import web
 import aiofiles 
 from typing import Set
@@ -20,7 +21,7 @@ class pyfsm_http_visualizer:
         self.ws_host = ws_host
         self.html_template = html_template
         self.app = None
-        self.clients: Set[websockets.WebSocketServerProtocol] = set()
+        self.clients: Set[WebSocketServerProtocol] = set()
         self.inbox : Queue = Queue()
         self.outbox : Queue = Queue()
         self.fsm_instance : Optional[fsm] = None
