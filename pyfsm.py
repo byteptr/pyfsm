@@ -271,6 +271,12 @@ class fsm_bindings:
     loop_flag : Event = field(default_factory = Event)
     sleep_time : float = 0.1
 
+    CMD_START   : str = 'start'
+    CMD_STOP    : str = 'stop'
+    CMD_RESET   : str = 'reset'
+    CMD_QUIT    : str = 'quit'
+
+
     def __post__init__(self): 
         self._inmutable__fields_ = set()
         #Declarar aqui los campos inmutables 
