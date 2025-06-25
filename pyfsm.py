@@ -65,6 +65,7 @@ try:
     from typing import Union, Callable
     from typing import Optional
     from typing import Deque
+    from typing import Set
     from queue import Queue
     from threading import Event
 except Exception as e: 
@@ -266,16 +267,19 @@ class gvproperties:
 @dataclass 
 class fsm_bindings:
 
-    CMD_START : str = 'start'
-    CMD_STOP : str = 'stop'
-    CMD_STEP : str = 'step'
-    CMD_RESET : str = 'reset'
-    CMD_QUIT : str = 'quit'
-    CMD_TIME_TRIGGER : str = 'time_triggered'
-    CMD_EVENT_TRIGGER : str = 'event_triggered'
-    CMD_SET_SLEEP : str = 'set_sleep'
-    CMD_GET_SLEEP : str = 'get_sleep'
-    CMD_GET_TRIGGER : str = 'get_trigger'
+    CMD_START : str = 'start' # start running FSM
+    CMD_STOP : str = 'stop' # stop running FSM
+    CMD_STEP : str = 'step' # execute step by step FSM  (event trigger)
+    CMD_RESET : str = 'reset' # resets the finite state machine
+    CMD_QUIT : str = 'quit' #  Exits from FSM running thread 
+    CMD_TIME_TRIGGER : str = 'time_triggered' # uses sleep()
+    CMD_EVENT_TRIGGER : str = 'event_triggered' # uses step 
+    CMD_GET_TRIGGER : str = 'get_trigger' # get trigger type event or sleep
+    CMD_SET_SLEEP : str = 'set_sleep' # change sleep time
+    CMD_GET_SLEEP : str = 'get_sleep' # get sleep time
+
+    MSG_TRIGGER_TIME : str = 'sleep_trigger'
+    MSG_TRIGGER_EVENT : str = 'event_trigger'
 
     input : Queue = field(default_factory=Queue)
     output : Queue = field(default_factory=Queue)
@@ -284,8 +288,13 @@ class fsm_bindings:
     sleep_time : float = 0.1
 
     def __post__init__(self): 
-        self._inmutable__fields_ = set()
-        #Declarar aqui los campos inmutables 
+        self._inmutable__fields_ : Set = set()
+        #Declare here non mutable fields by set comprehension 
+        # Where looking for the fields which contains CMD and MSG at begining
+        self._inmutable__fields_ =\
+         {cts for cts in filter(lambda x: True if x.split('_')[0] in {'CMD','MSG'} \
+            else False, self.__class__.__dict__.keys())}
+        # lastly protect _inmutable__fields_ itself against mutability 
         self._inmutable__fields_.add('_inmutable__fields_')
 
     def __setattr__(self, name: str, value: Any, /) -> None:
