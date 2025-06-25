@@ -63,6 +63,7 @@ try:
     from typing import List
     from typing import Union, Callable
     from typing import Optional
+    from typing import Deque
     from queue import Queue
     from threading import Event
 except Exception as e: 
@@ -315,7 +316,7 @@ class fsm:
         self.state = None
         self.states = []
         self.dead_states = []
-        self.state_history = deque([None]*history_len, maxlen = history_len) 
+        self.state_history : Deque[Optional[int]]= deque([None]*history_len, maxlen = history_len) 
         self.history_len = history_len
         self.check_cycles = False
         self.tsymbol = None
