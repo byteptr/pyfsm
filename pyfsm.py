@@ -281,10 +281,11 @@ class fsm_bindings:
     MSG_TRIGGER_TIME : str = 'sleep_trigger'
     MSG_TRIGGER_EVENT : str = 'event_trigger'
 
-    input : Queue = field(default_factory=Queue)
-    output : Queue = field(default_factory=Queue)
-    running : Event = field(default_factory = Event)
-    loop_flag : Event = field(default_factory = Event)
+    q_input : Queue = field(default_factory=Queue)
+    q_output : Queue = field(default_factory=Queue)
+    ev_running : Event = field(default_factory = Event)
+    ev_loop_flag : Event = field(default_factory = Event)
+    ev_async_flag : Event = field(default_factory = Event)
     sleep_time : float = 0.1
 
     def __post__init__(self) -> None: 

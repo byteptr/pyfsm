@@ -40,6 +40,8 @@ from typing import Optional
 from queue import Queue 
 from pyfsm import fsm
 from pyfsm import fsm_bindings
+import time 
+
 
 
 class pyfsm_http_visualizer: 
@@ -63,7 +65,17 @@ class pyfsm_http_visualizer:
         self.fsm_instance.binding = self.fsmbind
     
     def _run(self): 
-        pass
+        while not self.fsmbind.ev_running.is_set():
+            # main running loop 
+            if not self.fsmbind.ev_async_flag.is_set():
+                self.fsm_instance.step()
+                time.sleep(self.fsmbind.sleep_time)
+            else: 
+                if not self.fsmbind.ev_loop_flag.is_set():
+                    self.fsm_instance.step()
+                    self.fsmbind.ev_loop_flag.set()
+                time.sleep(max(0.02, self.fsmbind.sleep_time))
+                
 
     async def run_fsm(self):
         _ = await asyncio.to_thread(self._run)
