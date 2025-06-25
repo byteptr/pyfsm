@@ -265,17 +265,23 @@ class gvproperties:
 
 @dataclass 
 class fsm_bindings:
+
+    CMD_START : str = 'start'
+    CMD_STOP : str = 'stop'
+    CMD_STEP : str = 'step'
+    CMD_RESET : str = 'reset'
+    CMD_QUIT : str = 'quit'
+    CMD_TIME_TRIGGER : str = 'time_triggered'
+    CMD_EVENT_TRIGGER : str = 'event_triggered'
+    CMD_SET_SLEEP : str = 'set_sleep'
+    CMD_GET_SLEEP : str = 'get_sleep'
+    CMD_GET_TRIGGER : str = 'get_trigger'
+
     input : Queue = field(default_factory=Queue)
     output : Queue = field(default_factory=Queue)
     running : Event = field(default_factory = Event)
     loop_flag : Event = field(default_factory = Event)
     sleep_time : float = 0.1
-
-    CMD_START   : str = 'start'
-    CMD_STOP    : str = 'stop'
-    CMD_RESET   : str = 'reset'
-    CMD_QUIT    : str = 'quit'
-
 
     def __post__init__(self): 
         self._inmutable__fields_ = set()
