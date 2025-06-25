@@ -287,7 +287,7 @@ class fsm_bindings:
     loop_flag : Event = field(default_factory = Event)
     sleep_time : float = 0.1
 
-    def __post__init__(self): 
+    def __post__init__(self) -> None: 
         self._inmutable__fields_ : Set = set()
         #Declare here non mutable fields by set comprehension 
         # Where looking for the fields which contains CMD and MSG at begining
