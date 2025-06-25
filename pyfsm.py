@@ -60,6 +60,7 @@ try:
     from collections import deque
     from dataclasses import dataclass
     from dataclasses import field
+    from typing import Any
     from typing import List
     from typing import Union, Callable
     from typing import Optional
@@ -266,9 +267,20 @@ class gvproperties:
 class fsm_bindings:
     input : Queue = field(default_factory=Queue)
     output : Queue = field(default_factory=Queue)
-    running : bool = False
+    running : Event = field(default_factory = Event)
     loop_flag : Event = field(default_factory = Event)
     sleep_time : float = 0.1
+
+    def __post__init__(self): 
+        self._inmutable__fields_ = set()
+        #Declarar aqui los campos inmutables 
+        self._inmutable__fields_.add('_inmutable__fields_')
+
+    def __setattr__(self, name: str, value: Any, /) -> None:
+        if hasattr(self,"_inmutable__fields_") and name in self._inmutable__fields_: 
+            raise AttributeError(f'{name} is not mutable.')
+        else:
+            super().__setattr__(name,value)
 
 class fsm:
     """
