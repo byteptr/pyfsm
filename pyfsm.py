@@ -267,8 +267,8 @@ class fsm_bindings:
     input : Queue = field(default_factory=Queue)
     output : Queue = field(default_factory=Queue)
     running : bool = False
-    loop_flag : Event = Event()
-
+    loop_flag : Event = field(default_factory = Event)
+    sleep_time : float = 0.1
 
 class fsm:
     """
