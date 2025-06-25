@@ -291,9 +291,9 @@ class fsm_bindings:
         self._inmutable__fields_ : Set = set()
         #Declare here non mutable fields by set comprehension 
         # Where looking for the fields which contains CMD and MSG at begining
-        self._inmutable__fields_ =\
+        self._inmutable__fields_.update( 
          {cts for cts in filter(lambda x: True if x.split('_')[0] in {'CMD','MSG'} \
-            else False, self.__class__.__dict__.keys())}
+            else False, self.__class__.__dict__.keys())})
         # lastly protect _inmutable__fields_ itself against mutability 
         self._inmutable__fields_.add('_inmutable__fields_')
 
