@@ -65,19 +65,32 @@ class pyfsm_http_visualizer:
         self.fsm_instance.binding = self.fsmbind
     
     def _run(self): 
-        while not self.fsmbind.ev_running.is_set():
-            # main running loop 
+        # main running loop: while ev_running is set. 
+        while self.fsmbind.ev_running.is_set():
+            # if free running option is set, FSM runs free
+            # then do sleep() for some amount of time
+            # if loop_flag is set, otherwhise, FSL is in pause
             if not self.fsmbind.ev_async_flag.is_set():
-                self.fsm_instance.step()
-                time.sleep(self.fsmbind.sleep_time)
-            else: 
-                if not self.fsmbind.ev_loop_flag.is_set():
+                if self.fsmbind.ev_loop_flag.is_set():
+                        self.fsm_instance.step()
+                    time.sleep(self.fsmbind.sleep_time)
+            else:
+                #otherwise if no free running option is set, 
+                # we check if loop flag is set, then executes one step
+                # finally clears the flag and waits for some amount of time
+                if self.fsmbind.ev_loop_flag.is_set():
                     self.fsm_instance.step()
-                    self.fsmbind.ev_loop_flag.set()
-                time.sleep(max(0.02, self.fsmbind.sleep_time))
+                    self.fsmbind.ev_loop_flag.clear()
+                time.sleep(self.fsmbind.sleep_async)
                 
 
-    async def run_fsm(self):
+    async def run_fsm(self, run_method_async: bool = True):
+        if run_method_async: 
+            self.fsmbind.ev_async_flag.set()
+        else:
+            self.fsmbind.ev_async_flag.clear()
+
+        self.fsmbind.ev_running.set()
         _ = await asyncio.to_thread(self._run)
 
 
@@ -132,9 +145,24 @@ class pyfsm_http_visualizer:
         await asyncio.gather(
             self.start_http_server(),
             self.start_websocket(),
+            self.run_fsm(), 
         )
 if __name__ == '__main__': 
+    f = fsm()
 
+    f.add_transition('A => B : t0')
+    f.add_transition('B => C : t1')
+    f.add_transition('C => D : t2')
+    f.add_transition('D => A : t3')
+
+    f.add_condition('t0', 'a%10 == 0')
+    f.add_condition('t1', 'a%10 == 0')
+    f.add_condition('t2', 'a%10 == 0')
+    f.add_condition('t3', 'a%10 == 0')
+
+    f.compile()
+
+    
     service = pyfsm_http_visualizer()
     try: 
         asyncio.run(service.start())
