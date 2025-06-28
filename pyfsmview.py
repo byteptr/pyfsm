@@ -35,8 +35,11 @@ import websockets
 from websockets.server import WebSocketServerProtocol
 from aiohttp import web
 import aiofiles 
+from typing import Callable
 from typing import Set
+from typing import Awaitable
 from typing import Optional
+from typing import Any
 from queue import Queue 
 from pyfsm import fsm
 from pyfsm import fsm_bindings
@@ -58,22 +61,22 @@ class pyfsm_http_visualizer:
         self.outbox : Queue = Queue()
         self.fsm_instance : Optional[fsm] = None
         self.fsmbind : fsm_bindings = fsm_bindings() 
-
+        self.tasks : List[Callable[...,Awaitable[Any]]] = []
 
     def bind(self, f: fsm)->None:
         self.fsm_instance = f
         self.fsm_instance.binding = self.fsmbind
     
     def _run(self): 
+        print("_run() method started...")
         # main running loop: while ev_running is set. 
         while self.fsmbind.ev_running.is_set():
-            # if free running option is set, FSM runs free
-            # then do sleep() for some amount of time
-            # if loop_flag is set, otherwhise, FSL is in pause
-            if not self.fsmbind.ev_async_flag.is_set():
+            # self.fsm_instance.step()
+            # time.sleep(self.fsmbind.sleep_time)
+            if self.fsmbind.ev_async_flag.is_set: 
                 if self.fsmbind.ev_loop_flag.is_set():
-                        self.fsm_instance.step()
-                    time.sleep(self.fsmbind.sleep_time)
+                    self.fsm_instance.step()
+                time.sleep(self.fsmbind.sleep_time)
             else:
                 #otherwise if no free running option is set, 
                 # we check if loop flag is set, then executes one step
@@ -82,9 +85,10 @@ class pyfsm_http_visualizer:
                     self.fsm_instance.step()
                     self.fsmbind.ev_loop_flag.clear()
                 time.sleep(self.fsmbind.sleep_async)
-                
+
 
     async def run_fsm(self, run_method_async: bool = True):
+        print("starting run_fsm()")
         if run_method_async: 
             self.fsmbind.ev_async_flag.set()
         else:
@@ -140,32 +144,60 @@ class pyfsm_http_visualizer:
                await asyncio.Future() 
             except asyncio.exceptions.CancelledError: 
                 print("\nWebsockets terminate.")
+                service.fsmbind.ev_running.clear()
 
     async def start(self):
+        print("Starting all tasks")
         await asyncio.gather(
             self.start_http_server(),
             self.start_websocket(),
             self.run_fsm(), 
+            *(fn() for fn in self.tasks)
         )
+
+class test_fsm(fsm):
+    def __init__(self, history_len=10) -> None:
+        super().__init__(history_len)
+        self.a = 0
+
+    def tcondition(self)->bool:
+        return (self.a % 10) == 0 
+
+    def step(self) -> None:
+        self.a += 1
+        self.a %= 100
+        super().step()
+
+    async def printstate(self)->None:
+        print("Prinstate running...")
+        while True:
+            print(f'{self.a} {self.state}')
+            await asyncio.sleep(0.1)
+
 if __name__ == '__main__': 
-    f = fsm()
+    f = test_fsm()
 
     f.add_transition('A => B : t0')
     f.add_transition('B => C : t1')
     f.add_transition('C => D : t2')
     f.add_transition('D => A : t3')
 
-    f.add_condition('t0', 'a%10 == 0')
-    f.add_condition('t1', 'a%10 == 0')
-    f.add_condition('t2', 'a%10 == 0')
-    f.add_condition('t3', 'a%10 == 0')
+    f.add_condition('t0', f.tcondition)
+    f.add_condition('t1', f.tcondition)
+    f.add_condition('t2', f.tcondition)
+    f.add_condition('t3', f.tcondition)
 
     f.compile()
 
     
     service = pyfsm_http_visualizer()
+    service.bind(f)
+    service.tasks.append(f.printstate)
+
+    service.fsmbind.ev_loop_flag.set()
     try: 
         asyncio.run(service.start())
     except KeyboardInterrupt: 
+        service.fsmbind.ev_running.clear()
         print("Ctrl-C detected. exit()")
 

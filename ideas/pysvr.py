@@ -6,10 +6,10 @@ import random
 
 # Funciones de configuración por defecto
 def gv_node_properties():
-    return {"shape": "circle", "style": "filled", "fillcolor": "lightgray"}
+    return {"shape": "circle", "style": "filled", "fillcolor": "#FFFFFF"}
 
 def gv_edge_properties():
-    return {"color": "black", "arrowhead": "normal"}
+    return {"color": "#000000", "arrowhead": "normal"}
 
 # Clase que gestiona propiedades
 @dataclass
@@ -31,6 +31,12 @@ class gvproperties:
 
     def del_edge_properties(self, src, dst):
         self.special_edges.pop((src, dst), None)
+
+class DynamicGraph: 
+    def __init__(self) -> None:
+        self.properties = gvproperties()
+
+
 
 # Generar SVG
 def build_svg_from_config(config: gvproperties) -> str:
