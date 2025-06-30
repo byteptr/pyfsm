@@ -342,13 +342,13 @@ class fsm:
         self.parse_state = \
             re.compile(r'^\s*(?P<origin>\w+)\s*(?P<tsymbol>\-\>|\s*,\s*|=>)\s*'+\
             r'(?P<dest>\w+)\s*:\s*(?P<transition>\w+)\s*$')
-        self.tmatrix = None 
-        self.machine_trasitions = []
-        self.true_transitions = []
-        self.true_transitions_name = []
-        self.entry_point = None
+        self.tmatrix : Optional[np.ndarray] = None 
+        self.machine_trasitions : List = []
+        self.true_transitions : List = []
+        self.true_transitions_name : List = []
+        self.entry_point : Optional[str] = None
         self.conditions = dict()
-        self.state = None
+        self.state : Optional[int] = None
         self.states = []
         self.dead_states = []
         self.state_history : Deque[Optional[int]]= deque([None]*history_len, maxlen = history_len) 
