@@ -72,13 +72,30 @@ def _gv_active_node_dark_properties():
             "fontcolor" : "#000000"
             }
 
+def _gv_active_init_node_ligth_properties():
+    return { 
+            "shape" : "doublecircle"
+            "color": "#000000", 
+            "fillcolor": "#FFF1E0:#FFE6EB",
+            "fontcolor" : "#000000"
+            }
+
+def _gv_active_init_node_dark_properties():
+    return {
+            "shape" : "doublecircle"
+            "color": "#000000", 
+            "fillcolor": "#0F2027:#203A43:#2C5364",
+            "fontcolor" : "#000000"
+            }
+
+
 def _gv_active_edge_ligth_properties():
     return {"color": "#000000", 
             "arrowhead": "normal", 
             "fontcolor" : "#000000"
             }
 
-def _gv_active_edge_drak_properties():
+def _gv_active_edge_dark_properties():
     return {"color": "#000000", 
             "arrowhead": "normal", 
             "fontcolor" : "#000000"
@@ -90,14 +107,23 @@ class gvproperties:
 
     mode : str = 'light'
 
-    default_init_node_properties: dict = field(default_factory=_gv_init_node_ligth_properties)
-    default_node_properties: dict = field(default_factory=_gv_node_ligth_properties)
-    default_edge_properties: dict = field(default_factory=_gv_edge_ligth_properties)     
-    active_init_ligth_properties: dict = field(default_factory=_gv_init_node_ligth_properties)
+    default_init_node_light_properties: dict = field(default_factory=_gv_init_node_ligth_properties)
+    default_init_node_dark_properties: dict = field(default_factory=_gv_init_node_ligth_properties)
+
+    default_node_light_properties: dict = field(default_factory=_gv_node_ligth_properties)
+    default_node_dark_properties: dict = field(default_factory=_gv_node_dark_properties)
+
+    default_edge_ligth_properties: dict = field(default_factory=_gv_edge_ligth_properties)     
+    default_edge_dark_properties: dict = field(default_factory=_gv_edge_dark_properties)     
+
+    active_init_ligth_properties: dict = field(default_factory=_gv_active_init_node_ligth_properties)
+    active_init_dark_properties: dict = field(default_factory=_gv_active_init_node_dark_properties)
+
     active_node_light_properties : dict = field(default_factory=_gv_active_node_ligth_properties) 
     active_node_dark_properties : dict = field(default_factory=_gv_active_node_dark_properties) 
+
     active_edge_ligth_properties : dict = field(default_factory= _gv_active_edge_ligth_properties)
-    active_edge_dark_properties : dict = field(default_factory=_gv_active_edge_drak_properties)
+    active_edge_dark_properties : dict = field(default_factory=_gv_active_edge_dark_properties)
 
 
     def __post__init__(self):
@@ -142,10 +168,18 @@ class DynamicGraph:
         dot.attr('node', **self.properties.default_node_properties)
         dot.attr('edge', **self.properties.default_edge_properties)
 
-        if self.states[self.f.state] == self.initial_state: 
-            dot.node(self.initial_state, **self.properties.default_init_node_properties)
+        if self.states[self.fsm_inst.state] == self.initial_state: 
+            if self.mode == 'ligth':
+                dot.node(str(self.initial_state), **self.properties.active_init_ligth_properties)
+            else:
+                dot.node(str(self.initial_state), **self.properties.active_init_dark_properties)
+
         else: 
-            dot.node(self.initial_state, **self.properties.default_init_node_properties)
+            if self.mode == 'ligth':
+                dot.node(str(self.initial_state), **self.properties.default_init_node_light_properties)
+            else: 
+                dot.node(str(self.initial_state), **self.properties.default_init_node_dark_properties)
+
 
         for node in (n for n in self.states if n != self.initial_state):
             if node != self.states[self.fsm_inst.state]:
