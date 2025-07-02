@@ -1,101 +1,90 @@
 import numpy as np
 from dataclasses import dataclass, field
 from graphviz import Digraph
-import asyncio
 from numpy._core.numeric import where
-import websockets
-import random
 from pyfsm import fsm 
 from typing import Optional
+import os 
 
 # Funciones de configuración por defecto
 
-def _gv_init_node_ligth_properties():
+def _gv_init_node_dark_properties():
     return {"shape": "doublecircle", 
             "style": "filled", 
             "color": "#000000", 
             "fillcolor": "#FFFFFF", 
             "fontcolor" : "#000000"}
 
-def _gv_node_ligth_properties():
+def _gv_node_dark_properties():
     return {"shape": "circle", 
             "style": "filled", 
             "color": "#000000", 
             "fillcolor": "#FFFFFF", 
             "fontcolor" : "#000000"}
 
-def _gv_edge_ligth_properties():
+def _gv_edge_dark_properties():
     return {"color": "#000000", 
             "arrowhead": "normal", 
             "fontcolor" : "#000000"
             }
 
-def _gv_init_node_dark_properties():
+def _gv_init_node_ligth_properties():
     return {"shape": "doublecircle", 
             "style": "filled", 
             "color": "#303030", 
             "fillcolor": "#303030", 
             "fontcolor" : "#FFFFFF"}
 
-def _gv_node_dark_properties():
+def _gv_node_ligth_properties():
     return {"shape": "circle", 
             "style": "filled", 
             "color": "#303030", 
             "fillcolor": "#303030", 
             "fontcolor" : "#FFFFFF"}
 
-def _gv_edge_dark_properties():
+def _gv_edge_ligth_properties():
     return {"color": "#303030", 
             "arrowhead": "normal", 
-            "fontcolor" : "#FFFFFF"
-            }
-
-
-# def _gv_active_node_ligth_properties():
-#     return { 
-#             "color": "#000000", 
-#             "fillcolor": "#FFFFCC", 
-#             "fontcolor" : "#000000"
-#             }
-
-def _gv_active_node_ligth_properties():
-    return { 
-            "color": "#000000", 
-            "fillcolor": "#FFF1E0:#FFE6EB",
             "fontcolor" : "#000000"
             }
 
 def _gv_active_node_dark_properties():
     return { 
             "color": "#000000", 
-            "fillcolor": "#0F2027:#203A43:#2C5364",
+            "fillcolor": "#FFF1E0:#FFE6EB",
             "fontcolor" : "#000000"
             }
 
-def _gv_active_init_node_ligth_properties():
+def _gv_active_node_ligth_properties():
     return { 
-            "shape" : "doublecircle"
+            "color": "#000000", 
+            "fillcolor": "#0F2027:#2C5364",
+            "fontcolor" : "#000000"
+            }
+
+def _gv_active_init_node_dark_properties():
+    return {"shape" : "doublecircle",
             "color": "#000000", 
             "fillcolor": "#FFF1E0:#FFE6EB",
             "fontcolor" : "#000000"
             }
 
-def _gv_active_init_node_dark_properties():
-    return {
-            "shape" : "doublecircle"
+def _gv_active_init_node_ligth_properties():
+    return {"shape" : "doublecircle",
             "color": "#000000", 
-            "fillcolor": "#0F2027:#203A43:#2C5364",
-            "fontcolor" : "#000000"
+            #  #FFDEE9 → #B5FFFC
+            "fillcolor": "#662D8C:#ED1E79",
+            "fontcolor" : "#FFFFFF"
             }
 
 
-def _gv_active_edge_ligth_properties():
+def _gv_active_edge_dark_properties():
     return {"color": "#000000", 
             "arrowhead": "normal", 
             "fontcolor" : "#000000"
             }
 
-def _gv_active_edge_dark_properties():
+def _gv_active_edge_ligth_properties():
     return {"color": "#000000", 
             "arrowhead": "normal", 
             "fontcolor" : "#000000"
@@ -125,6 +114,8 @@ class gvproperties:
     active_edge_ligth_properties : dict = field(default_factory= _gv_active_edge_ligth_properties)
     active_edge_dark_properties : dict = field(default_factory=_gv_active_edge_dark_properties)
 
+    bgcolor_ligth = {'bgcolor' : '#FFFFFF'} 
+    bgcolor_dark = {'bgcolor' : '#303030'} 
 
     def __post__init__(self):
         if self.mode == 'dark':
@@ -162,18 +153,30 @@ class DynamicGraph:
             self.node_transitions[f.tmatrix[r,c]] = (f.states[r],f.states[c])
         
     # Generar SVG
-    def build_svg_from_self(self) -> str:
+    def build_svg(self) -> str:
         dot = Digraph()
 
-        dot.attr('node', **self.properties.default_node_properties)
-        dot.attr('edge', **self.properties.default_edge_properties)
+        if self.properties.mode == 'ligth': 
+            dot.attr(**self.properties.bgcolor_ligth)
+        else: 
+            dot.attr(**self.properties.bgcolor_dark)
+
+        dot.attr(fontname='Courier New')
+        dot.attr('node', fontname='Courier New')
+        dot.attr('edge', fontname='Courier New')
+
+        if self.properties.mode == 'ligth': 
+            dot.attr('node', **self.properties.default_node_light_properties)
+            dot.attr('edge', **self.properties.default_edge_ligth_properties)
+        else:
+            dot.attr('node', **self.properties.default_node_dark_properties)
+            dot.attr('edge', **self.properties.default_edge_dark_properties) 
 
         if self.states[self.fsm_inst.state] == self.initial_state: 
-            if self.mode == 'ligth':
+            if self.properties.mode == 'ligth':
                 dot.node(str(self.initial_state), **self.properties.active_init_ligth_properties)
             else:
                 dot.node(str(self.initial_state), **self.properties.active_init_dark_properties)
-
         else: 
             if self.mode == 'ligth':
                 dot.node(str(self.initial_state), **self.properties.default_init_node_light_properties)
@@ -185,15 +188,21 @@ class DynamicGraph:
             if node != self.states[self.fsm_inst.state]:
                 dot.node(node)
             else:
-                dot.node(node, **self.properties.gv)
+                if self.mode == 'ligth':
+                    dot.node(node, **self.properties.active_node_light_properties)
+                else: 
+                    dot.node(node, **self.properties.active_node_dark_properties)
 
+        # edges 
 
-        # for nodo, props in self.properties.special_nodes.items():
-        #     dot.node(nodo, **props)
-        #
-        # for (src, dst), props in self.properties.special_edges.items():
-        #     dot.edge(src, dst, **props)
+        for transition in self.node_transitions.keys():
+            print(f"Node transition {transition}")
+            dot.edge(*self.node_transitions[transition], label = transition)
 
+        if os.path.exists('diagrama_test.pdf'):
+            os.remove('diagrama_test.pdf')
+
+        dot.render('diagrama_test', format='pdf', cleanup=True)
         return dot.pipe(format="svg").decode("utf-8")
 
 if __name__ == "__main__":
@@ -208,8 +217,10 @@ if __name__ == "__main__":
     f.add_condition('t1', 'a%10 == 0')
     f.add_condition('t2', 'a%10 == 0')
     f.add_condition('t3', 'a%10 == 0')
-    
     f.compile()
+
+    print(f'Entry point {f.entry_point}')
+    
     a = 0
 
     dg = DynamicGraph()
@@ -218,5 +229,7 @@ if __name__ == "__main__":
 
     print(dg.node_transitions)
     print(dg.states)
+    _ = dg.build_svg()
+
 
 
