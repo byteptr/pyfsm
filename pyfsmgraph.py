@@ -11,21 +11,21 @@ import os
 def _gv_init_node_dark_properties():
     return {"shape": "doublecircle", 
             "style": "filled", 
-            "color": "#000000", 
-            "fillcolor": "#FFFFFF", 
-            "fontcolor" : "#000000"}
+            "color": "#DCDCAA", 
+            "fillcolor": "#00000000", 
+            "fontcolor" : "#DCDCAA"}
 
 def _gv_node_dark_properties():
     return {"shape": "circle", 
             "style": "filled", 
-            "color": "#000000", 
-            "fillcolor": "#FFFFFF", 
-            "fontcolor" : "#000000"}
+            "color": "#DCDCAA", 
+            "fillcolor": "#00000000", 
+            "fontcolor" : "#DCDCAA"}
 
 def _gv_edge_dark_properties():
-    return {"color": "#000000", 
+    return {"color": "#DCDCAA", 
             "arrowhead": "normal", 
-            "fontcolor" : "#000000"
+            "fontcolor" : "#DCDCAA"
             }
 
 def _gv_init_node_ligth_properties():
@@ -50,8 +50,8 @@ def _gv_edge_ligth_properties():
 
 def _gv_active_node_dark_properties():
     return { 
-            "color": "#000000", 
-            "fillcolor": "#FFF1E0:#FFE6EB",
+            "color": "#FFFF00", 
+            "fillcolor": "#E5FFCC:#00FFFF",
             "fontcolor" : "#000000"
             }
 
@@ -64,8 +64,9 @@ def _gv_active_node_ligth_properties():
 
 def _gv_active_init_node_dark_properties():
     return {"shape" : "doublecircle",
-            "color": "#000000", 
-            "fillcolor": "#FFF1E0:#FFE6EB",
+            "color": "#FFFF00",
+            "fillcolor": "#E5FFCC:#00FFFF",
+            "gradientangle" : "90",
             "fontcolor" : "#000000"
             }
 
@@ -77,11 +78,10 @@ def _gv_active_init_node_ligth_properties():
             "fontcolor" : "#FFFFFF"
             }
 
-
 def _gv_active_edge_dark_properties():
-    return {"color": "#000000", 
+    return {"color": "#FFFF00",
             "arrowhead": "normal", 
-            "fontcolor" : "#000000"
+            "fontcolor" : "#FFFF00"
             }
 
 def _gv_active_edge_ligth_properties():
@@ -90,6 +90,12 @@ def _gv_active_edge_ligth_properties():
             "fontcolor" : "#000000"
             }
 
+def _gv_default_background_ligth_properties():
+    return {'bgcolor' : '#FFFFFF'}
+
+def _gv_default_background_dark_properties():
+    return {'bgcolor' : '#303030'}
+
 # Clase que gestiona propiedades
 @dataclass
 class gvproperties:
@@ -97,7 +103,7 @@ class gvproperties:
     mode : str = 'light'
 
     default_init_node_light_properties: dict = field(default_factory=_gv_init_node_ligth_properties)
-    default_init_node_dark_properties: dict = field(default_factory=_gv_init_node_ligth_properties)
+    default_init_node_dark_properties: dict = field(default_factory=_gv_init_node_dark_properties)
 
     default_node_light_properties: dict = field(default_factory=_gv_node_ligth_properties)
     default_node_dark_properties: dict = field(default_factory=_gv_node_dark_properties)
@@ -114,14 +120,22 @@ class gvproperties:
     active_edge_ligth_properties : dict = field(default_factory= _gv_active_edge_ligth_properties)
     active_edge_dark_properties : dict = field(default_factory=_gv_active_edge_dark_properties)
 
-    bgcolor_ligth = {'bgcolor' : '#FFFFFF'} 
-    bgcolor_dark = {'bgcolor' : '#303030'} 
+    bgcolor_ligth  : dict = field(default_factory=_gv_default_background_ligth_properties)
+    bgcolor_dark : dict = field(default_factory=_gv_default_background_dark_properties)
 
     def __post__init__(self):
         if self.mode == 'dark':
             self.default_init_node_properties: dict = field(default_factory=_gv_init_node_dark_properties)
+            self.default_active_init_node_properties: dict = field(default_factory=_gv_active_init_node_dark_properties)
             self.default_node_properties: dict = field(default_factory=_gv_node_dark_properties)
+            self.default_active_node_properties: dict = field(default_factory=_gv_active_node_dark_properties)
             self.default_edge_properties: dict = field(default_factory=_gv_edge_dark_properties) 
+        else: 
+            self.default_init_node_properties: dict = field(default_factory=_gv_init_node_ligth_properties)
+            self.default_active_init_node_properties: dict = field(default_factory=_gv_active_init_node_ligth_properties)
+            self.default_node_properties: dict = field(default_factory=_gv_node_ligth_properties)
+            self.default_active_node_properties: dict = field(default_factory=_gv_active_node_ligth_properties)
+            self.default_edge_properties: dict = field(default_factory=_gv_edge_ligth_properties) 
 
     # def add_node_properties(self, nodename, **kwargs):
     #     self.special_nodes[nodename] = kwargs
@@ -178,7 +192,7 @@ class DynamicGraph:
             else:
                 dot.node(str(self.initial_state), **self.properties.active_init_dark_properties)
         else: 
-            if self.mode == 'ligth':
+            if self.properties.mode == 'ligth':
                 dot.node(str(self.initial_state), **self.properties.default_init_node_light_properties)
             else: 
                 dot.node(str(self.initial_state), **self.properties.default_init_node_dark_properties)
@@ -188,7 +202,7 @@ class DynamicGraph:
             if node != self.states[self.fsm_inst.state]:
                 dot.node(node)
             else:
-                if self.mode == 'ligth':
+                if self.properties.mode == 'ligth':
                     dot.node(node, **self.properties.active_node_light_properties)
                 else: 
                     dot.node(node, **self.properties.active_node_dark_properties)
@@ -220,11 +234,12 @@ if __name__ == "__main__":
     f.compile()
 
     print(f'Entry point {f.entry_point}')
+    print(f'State {f.state}')
     
     a = 0
 
     dg = DynamicGraph()
-
+    f.state = 1
     dg.get_fsm(f)
 
     print(dg.node_transitions)
