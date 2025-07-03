@@ -32,15 +32,16 @@ def _gv_init_node_ligth_properties():
     return {"shape": "doublecircle", 
             "style": "filled", 
             "color": "#303030", 
-            "fillcolor": "#303030", 
-            "fontcolor" : "#FFFFFF"}
+            "fillcolor": "#FFFFFF", 
+            "fontcolor" : "#000000"}
 
 def _gv_node_ligth_properties():
     return {"shape": "circle", 
             "style": "filled", 
             "color": "#303030", 
-            "fillcolor": "#303030", 
-            "fontcolor" : "#FFFFFF"}
+            "fillcolor": "#FFFFFF", 
+            "fontcolor" : "#000000"
+            }
 
 def _gv_edge_ligth_properties():
     return {"color": "#303030", 
@@ -57,25 +58,26 @@ def _gv_active_node_dark_properties():
 
 def _gv_active_node_ligth_properties():
     return { 
-            "color": "#000000", 
-            "fillcolor": "#0F2027:#2C5364",
-            "fontcolor" : "#000000"
+            "color": "#FF0000", 
+            "fillcolor": "#FFCCFF:#FFCCCC",
+            "fontcolor" : "#000000",
+            "gradientangle" : "120",
             }
 
 def _gv_active_init_node_dark_properties():
     return {"shape" : "doublecircle",
             "color": "#FFFF00",
             "fillcolor": "#E5FFCC:#00FFFF",
-            "gradientangle" : "90",
+            "gradientangle" : "120",
             "fontcolor" : "#000000"
             }
 
 def _gv_active_init_node_ligth_properties():
     return {"shape" : "doublecircle",
-            "color": "#000000", 
-            #  #FFDEE9 → #B5FFFC
-            "fillcolor": "#662D8C:#ED1E79",
-            "fontcolor" : "#FFFFFF"
+            "color": "#FF0000", 
+            "fillcolor": "#FFCCFF:#FFCCCC",
+            "fontcolor" : "#000000",
+            "gradientangle" : "120",
             }
 
 def _gv_active_edge_dark_properties():
@@ -139,7 +141,7 @@ class gvproperties:
 
 class DynamicGraph: 
     def __init__(self) -> None:
-        self.properties = gvproperties(mode='dark')
+        self.properties = gvproperties(mode='ligth')
         self.node_transitions = dict()
         self.states : list = []
         self.initial_state : Optional[str] = ''
@@ -226,7 +228,7 @@ if __name__ == "__main__":
     a = 0
 
     dg = DynamicGraph()
-    f.state = 1
+    f.state = 0
     dg.get_fsm(f)
 
     print(dg.node_transitions)
