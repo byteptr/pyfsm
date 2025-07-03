@@ -214,56 +214,55 @@ class gv_node_properties:
     labeljust : Optional[str] = None
     margin : Optional[str] = None
 
-@dataclass 
-class gv_edge_properties:
-    label : str = ''
-    xlabel : Optional[str] = None 
-    fontname : str = 'consolas'
-    fontsize : int = 14
-    fontcolor : str = '#000000'
-    labeldistance : Optional[int] = None 
-    labelangle : Optional[float] = None 
-    decorate : bool = True 
 
-    style : Optional[str] = None 
-    color : Optional[str] = None 
-    penwidth : Optional[int] = None 
-    arrowhead : Optional[str] = 'normal'
-    arrowtail : Optional[str] = None
-    dir : Optional[str] = None 
-    
-    minlen : Optional[int] = None
-    weight : Optional[int] = None
-    splines : Optional[str] = None
-
-    tailport : Optional[str] = None 
-    headport : Optional[str] = None
-
-    pos : Optional[str] = None 
-
-
-    tooltip : Optional[str] = None
-    URL : Optional[str] = None
-    target : Optional[str] = None
-
-   
-@dataclass 
-class gvproperties:
-    default_node_properties : gv_node_properties = field(
-        default_factory=lambda : gv_node_properties()
-    ) 
-    default_edge_properties : gv_edge_properties = field(
-        default_factory=lambda : gv_edge_properties()
-    )
-    special_nodes = dict()
-    special_edges = dict()
-
-    def add_node_properties(self, nodename, **kwargs): 
-        self.special_nodes[nodename] = kwargs
-
-    def del_node_properties(self, nodename):         
-        del self.special_nodes[nodename]
-
+#     label : str = ''
+#     xlabel : Optional[str] = None 
+#     fontname : str = 'consolas'
+#     fontsize : int = 14
+#     fontcolor : str = '#000000'
+#     labeldistance : Optional[int] = None 
+#     labelangle : Optional[float] = None 
+#     decorate : bool = True 
+#
+#     style : Optional[str] = None 
+#     color : Optional[str] = None 
+#     penwidth : Optional[int] = None 
+#     arrowhead : Optional[str] = 'normal'
+#     arrowtail : Optional[str] = None
+#     dir : Optional[str] = None 
+#
+#     minlen : Optional[int] = None
+#     weight : Optional[int] = None
+#     splines : Optional[str] = None
+#
+#     tailport : Optional[str] = None 
+#     headport : Optional[str] = None
+#
+#     pos : Optional[str] = None 
+#
+#
+#     tooltip : Optional[str] = None
+#     URL : Optional[str] = None
+#     target : Optional[str] = None
+#
+#
+# @dataclass 
+# class gvproperties:
+#     default_node_properties : gv_node_properties = field(
+#         default_factory=lambda : gv_node_properties()
+#     ) 
+#     default_edge_properties : gv_edge_properties = field(
+#         default_factory=lambda : gv_edge_properties()
+#     )
+#     special_nodes = dict()
+#     special_edges = dict()
+#
+#     def add_node_properties(self, nodename, **kwargs): 
+#         self.special_nodes[nodename] = kwargs
+#
+#     def del_node_properties(self, nodename):         
+#         del self.special_nodes[nodename]
+#
 @dataclass 
 class fsm_bindings:
 
