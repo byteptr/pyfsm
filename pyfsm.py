@@ -745,7 +745,7 @@ class fsm:
             elif v == 'state_history':
                 msg += f'{v} : {[self.states[s] for s in filter(lambda x:x is not None, self.state_history)]}\n'
             elif v == 'tmatrix': 
-                msg += f'\n{v}:\n\n' + self.format_matrix(none_as_zero=True)+'\n\n'
+                msg += f'\n{v}:\n\n' + self.printable_matrix(none_as_zero=True)+'\n\n'
                 msg += f'\n{"Accesibility Matrix"}:\n\n' + \
                     self.printable_matrix(M = self.get_allPaths(),none_as_zero=True)+'\n\n'
         msg = msg.rstrip()
