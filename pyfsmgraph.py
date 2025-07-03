@@ -137,19 +137,6 @@ class gvproperties:
             self.default_active_node_properties: dict = field(default_factory=_gv_active_node_ligth_properties)
             self.default_edge_properties: dict = field(default_factory=_gv_edge_ligth_properties) 
 
-    # def add_node_properties(self, nodename, **kwargs):
-    #     self.special_nodes[nodename] = kwargs
-    #
-    # def del_node_properties(self, nodename):
-    #     if nodename in self.special_nodes:
-    #         del self.special_nodes[nodename]
-    #
-    # def add_edge_properties(self, src, dst, **kwargs):
-    #     self.special_edges[(src, dst)] = kwargs
-    #
-    # def del_edge_properties(self, src, dst):
-    #     self.special_edges.pop((src, dst), None)
-
 class DynamicGraph: 
     def __init__(self) -> None:
         self.properties = gvproperties(mode='dark')
