@@ -38,7 +38,6 @@ from graphviz import Digraph
 from numpy._core.numeric import where
 from pyfsm import fsm 
 from typing import Optional
-import os 
 
 # Funciones de configuración por defecto
 
@@ -196,7 +195,7 @@ class gvproperties:
             self.default_edge_properties: dict = field(default_factory=\
                                                        _gv_edge_ligth_properties) 
 
-class DynamicGraph: 
+class dynamic_graph: 
     def __init__(self, f:fsm) -> None:
         self.properties = gvproperties(mode='ligth')
         self.node_transitions = dict()
@@ -260,10 +259,10 @@ class DynamicGraph:
             print(f"Node transition {transition}")
             dot.edge(*self.node_transitions[transition], label = transition)
 
-        if os.path.exists('diagrama_test.pdf'):
-            os.remove('diagrama_test.pdf')
-
-        dot.render('diagrama_test', format='pdf', cleanup=True)
+        # if os.path.exists('diagrama_test.pdf'):
+        #     os.remove('diagrama_test.pdf')
+        #
+        # dot.render('diagrama_test', format='pdf', cleanup=True)
         return dot.pipe(format="svg").decode("utf-8")
 
 if __name__ == "__main__":
@@ -285,7 +284,7 @@ if __name__ == "__main__":
     
     a = 0
 
-    dg = DynamicGraph(f)
+    dg = dynamic_graph(f)
     f.state = 0
 
     print(dg.node_transitions)

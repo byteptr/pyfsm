@@ -44,9 +44,11 @@ from typing import Set
 from typing import Awaitable
 from typing import Optional
 from typing import Any
+from typing import List
 from queue import Queue 
 from pyfsm import fsm
 from pyfsm import fsm_bindings
+from pyfsmgraph import dynamic_graph
 import time 
 
 
@@ -66,10 +68,13 @@ class pyfsm_http_visualizer:
         self.fsm_instance : Optional[fsm] = None
         self.fsmbind : fsm_bindings = fsm_bindings() 
         self.tasks : List[Callable[...,Awaitable[Any]]] = []
+        self.dgraph : Optional[dynamic_graph] = None 
 
     def bind(self, f: fsm)->None:
         self.fsm_instance = f
         self.fsm_instance.binding = self.fsmbind
+        self.dgraph = dynamic_graph(f)
+
     
     def _run(self): 
         print("_run() method started...")
@@ -171,7 +176,7 @@ class test_fsm(fsm):
         self.a += 1
         self.a %= 100
         super().step()
-
+        
     async def printstate(self)->None:
         print("Prinstate running...")
         while True:
