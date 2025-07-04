@@ -1,3 +1,37 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+"""
+pyfsmgraph.py
+
+Module to create machine states.
+TODO: Comment better 
+
+Author: Raul Alvarez
+Email: ralvarezb78@gmail.com
+Version: 1.0.0
+Date: 2025-06-15
+License: MIT
+
+Copyright (c) 2025 Raul Alvarez
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+"""
 import numpy as np
 from dataclasses import dataclass, field
 from graphviz import Digraph
@@ -104,49 +138,73 @@ class gvproperties:
 
     mode : str = 'light'
 
-    default_init_node_light_properties: dict = field(default_factory=_gv_init_node_ligth_properties)
-    default_init_node_dark_properties: dict = field(default_factory=_gv_init_node_dark_properties)
+    default_init_node_light_properties: dict = field(default_factory=\
+                                                     _gv_init_node_ligth_properties)
+    default_init_node_dark_properties: dict = field(default_factory=\
+                                                    _gv_init_node_dark_properties)
 
-    default_node_light_properties: dict = field(default_factory=_gv_node_ligth_properties)
-    default_node_dark_properties: dict = field(default_factory=_gv_node_dark_properties)
+    default_node_light_properties: dict = field(default_factory=\
+                                                _gv_node_ligth_properties)
+    default_node_dark_properties: dict = field(default_factory=\
+                                               _gv_node_dark_properties)
 
-    default_edge_ligth_properties: dict = field(default_factory=_gv_edge_ligth_properties)     
-    default_edge_dark_properties: dict = field(default_factory=_gv_edge_dark_properties)     
+    default_edge_ligth_properties: dict = field(default_factory=\
+                                                _gv_edge_ligth_properties)     
+    default_edge_dark_properties: dict = field(default_factory=\
+                                               _gv_edge_dark_properties)     
 
-    active_init_ligth_properties: dict = field(default_factory=_gv_active_init_node_ligth_properties)
-    active_init_dark_properties: dict = field(default_factory=_gv_active_init_node_dark_properties)
+    active_init_ligth_properties: dict = field(default_factory=\
+                                               _gv_active_init_node_ligth_properties)
+    active_init_dark_properties: dict = field(default_factory=\
+                                              _gv_active_init_node_dark_properties)
 
-    active_node_light_properties : dict = field(default_factory=_gv_active_node_ligth_properties) 
+    active_node_light_properties : dict = field(default_factory=\
+                                                _gv_active_node_ligth_properties) 
     active_node_dark_properties : dict = field(default_factory=_gv_active_node_dark_properties) 
 
-    active_edge_ligth_properties : dict = field(default_factory= _gv_active_edge_ligth_properties)
-    active_edge_dark_properties : dict = field(default_factory=_gv_active_edge_dark_properties)
+    active_edge_ligth_properties : dict = field(default_factory=\
+                                                _gv_active_edge_ligth_properties)
+    active_edge_dark_properties : dict = field(default_factory=\
+                                               _gv_active_edge_dark_properties)
 
-    bgcolor_ligth  : dict = field(default_factory=_gv_default_background_ligth_properties)
-    bgcolor_dark : dict = field(default_factory=_gv_default_background_dark_properties)
+    bgcolor_ligth  : dict = field(default_factory=\
+                                  _gv_default_background_ligth_properties)
+    bgcolor_dark : dict = field(default_factory=\
+                                _gv_default_background_dark_properties)
 
     def __post__init__(self):
         if self.mode == 'dark':
-            self.default_init_node_properties: dict = field(default_factory=_gv_init_node_dark_properties)
-            self.default_active_init_node_properties: dict = field(default_factory=_gv_active_init_node_dark_properties)
-            self.default_node_properties: dict = field(default_factory=_gv_node_dark_properties)
-            self.default_active_node_properties: dict = field(default_factory=_gv_active_node_dark_properties)
-            self.default_edge_properties: dict = field(default_factory=_gv_edge_dark_properties) 
+            self.default_init_node_properties: dict = field(default_factory=\
+                                                            _gv_init_node_dark_properties)
+            self.default_active_init_node_properties: dict = field(default_factory=\
+                                                                   _gv_active_init_node_dark_properties)
+            self.default_node_properties: dict = field(default_factory=\
+                                                       _gv_node_dark_properties)
+            self.default_active_node_properties: dict = field(default_factory=\
+                                                              _gv_active_node_dark_properties)
+            self.default_edge_properties: dict = field(default_factory=\
+                                                       _gv_edge_dark_properties) 
         else: 
-            self.default_init_node_properties: dict = field(default_factory=_gv_init_node_ligth_properties)
-            self.default_active_init_node_properties: dict = field(default_factory=_gv_active_init_node_ligth_properties)
-            self.default_node_properties: dict = field(default_factory=_gv_node_ligth_properties)
-            self.default_active_node_properties: dict = field(default_factory=_gv_active_node_ligth_properties)
-            self.default_edge_properties: dict = field(default_factory=_gv_edge_ligth_properties) 
+            self.default_init_node_properties: dict = field(default_factory=\
+                                                            _gv_init_node_ligth_properties)
+            self.default_active_init_node_properties: dict = field(default_factory=\
+                                                                   _gv_active_init_node_ligth_properties)
+            self.default_node_properties: dict = field(default_factory=\
+                                                       _gv_node_ligth_properties)
+            self.default_active_node_properties: dict = field(default_factory=\
+                                                              _gv_active_node_ligth_properties)
+            self.default_edge_properties: dict = field(default_factory=\
+                                                       _gv_edge_ligth_properties) 
 
 class DynamicGraph: 
-    def __init__(self) -> None:
+    def __init__(self, f:fsm) -> None:
         self.properties = gvproperties(mode='ligth')
         self.node_transitions = dict()
         self.states : list = []
         self.initial_state : Optional[str] = ''
+        self.__get_fsm__(f)
 
-    def get_fsm(self,f:fsm):
+    def __get_fsm__(self,f:fsm):
         self.fsm_inst = f
         self.initial_state = f.entry_point
         self.states = f.states.copy()
@@ -227,9 +285,8 @@ if __name__ == "__main__":
     
     a = 0
 
-    dg = DynamicGraph()
+    dg = DynamicGraph(f)
     f.state = 0
-    dg.get_fsm(f)
 
     print(dg.node_transitions)
     print(dg.states)

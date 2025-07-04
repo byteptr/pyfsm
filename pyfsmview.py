@@ -1,4 +1,8 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
+pyfsmview
+
 Module for view finite state machines as pyfsm module part. 
 
 Author: Raul Alvarez
