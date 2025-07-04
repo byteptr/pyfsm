@@ -54,8 +54,8 @@ import time
 
 
 class pyfsm_http_visualizer: 
-    def __init__(self, http_port:int=8000, ws_port:int=8765, ws_host : str = '0.0.0.0',
-                 html_template='aioftest.html'):
+    def __init__(self, http_port:int=8000, ws_port:int=8765, ws_host : str = 'localhost',
+                 html_template='./template/index.html'):
 
         self.http_port = http_port
         self.ws_port = ws_port
@@ -85,6 +85,9 @@ class pyfsm_http_visualizer:
             if self.fsmbind.ev_async_flag.is_set: 
                 if self.fsmbind.ev_loop_flag.is_set():
                     self.fsm_instance.step()
+                    if len(self.fsm_instance.true_transitions_name) > 0:
+                        self.fsmbind.q_output.put(True)
+                        print("Transition to queue")
                 time.sleep(self.fsmbind.sleep_time)
             else:
                 #otherwise if no free running option is set, 
@@ -130,7 +133,7 @@ class pyfsm_http_visualizer:
         site = web.TCPSite(runner, host=self.ws_host, port=self.http_port)
         await site.start()
 
-    async def ws_handle(self, websocket, path):
+    async def ws_handle(self, websocket):
         self.clients.add(websocket)
         try:
             async for message in websocket:
@@ -146,6 +149,9 @@ class pyfsm_http_visualizer:
                     *[ws.send(msg) for ws in self.clients],
                     return_exceptions=True
             )
+            print(f"ws clients {self.clients}")
+        else: 
+            print("No ws clients!")
 
     async def start_websocket(self):
         async with websockets.serve(self.ws_handle, self.ws_host, self.ws_port):
@@ -153,14 +159,37 @@ class pyfsm_http_visualizer:
                await asyncio.Future() 
             except asyncio.exceptions.CancelledError: 
                 print("\nWebsockets terminate.")
-                service.fsmbind.ev_running.clear()
+                self.fsmbind.ev_running.clear()
+
+    async def transmit(self):
+        while self.fsmbind.ev_running.is_set():
+            if not self.fsmbind.q_output.empty():
+                _ = self.fsmbind.q_output.get()
+                print("queue get on transmit")
+                # aqui hay que llamar a la parte grafica
+                if self.dgraph is not None:
+                    msg = self.dgraph.build_svg()
+                    await self.ws_broadcast(msg)
+                    print(f"called build_svg")
+            await asyncio.sleep(0.1)
 
     async def start(self):
         print("Starting all tasks")
+        
+        print("starting run_fsm()")
+        run_method_async=True 
+        if run_method_async: 
+            self.fsmbind.ev_async_flag.set()
+        else:
+            self.fsmbind.ev_async_flag.clear()
+        self.fsmbind.ev_running.set()
+        asyncio.create_task(asyncio.to_thread(self._run))
+
         await asyncio.gather(
             self.start_http_server(),
             self.start_websocket(),
-            self.run_fsm(), 
+            self.transmit(), 
+            # self.run_fsm(), 
             *(fn() for fn in self.tasks)
         )
 
@@ -174,7 +203,7 @@ class test_fsm(fsm):
 
     def step(self) -> None:
         self.a += 1
-        self.a %= 100
+        self.a %= 2
         super().step()
         
     async def printstate(self)->None:

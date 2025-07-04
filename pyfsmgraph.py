@@ -215,7 +215,7 @@ class dynamic_graph:
     # Generar SVG
     def build_svg(self) -> str:
         dot = Digraph()
-
+        dot.attr(rankdir='LR')
         if self.properties.mode == 'ligth': 
             dot.attr(**self.properties.bgcolor_ligth)
         else: 
@@ -256,7 +256,6 @@ class dynamic_graph:
         # edges 
 
         for transition in self.node_transitions.keys():
-            print(f"Node transition {transition}")
             dot.edge(*self.node_transitions[transition], label = transition)
 
         # if os.path.exists('diagrama_test.pdf'):

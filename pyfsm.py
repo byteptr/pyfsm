@@ -210,8 +210,8 @@ class fsm_bindings:
     ev_running : Event = field(default_factory = Event)
     ev_loop_flag : Event = field(default_factory = Event)
     ev_async_flag : Event = field(default_factory = Event)
-    sleep_time : float = 0.1
-    sleep_async : float = 0.05
+    sleep_time : float = 0.5
+    sleep_async : float = 0.5
 
     def __post__init__(self) -> None: 
         self._inmutable__fields_ : Set = set()
