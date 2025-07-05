@@ -87,7 +87,7 @@ class pyfsm_http_visualizer:
                     self.fsm_instance.step()
                     if len(self.fsm_instance.true_transitions_name) > 0:
                         self.fsmbind.q_output.put(True)
-                        print("Transition to queue")
+                        # print("Transition to queue")
                 time.sleep(self.fsmbind.sleep_time)
             else:
                 #otherwise if no free running option is set, 
@@ -135,8 +135,10 @@ class pyfsm_http_visualizer:
 
     async def ws_handle(self, websocket):
         self.clients.add(websocket)
+        print("Client connected.")
         try:
             async for message in websocket:
+                print("Message from client")
                 await asyncio.sleep(0)
         except websockets.exceptions.ConnectionClosedOK:
             pass
@@ -149,9 +151,10 @@ class pyfsm_http_visualizer:
                     *[ws.send(msg) for ws in self.clients],
                     return_exceptions=True
             )
-            print(f"ws clients {self.clients}")
+            # print(f"ws clients {self.clients}")
         else: 
-            print("No ws clients!")
+            pass
+            # print("No ws clients!")
 
     async def start_websocket(self):
         async with websockets.serve(self.ws_handle, self.ws_host, self.ws_port):
@@ -165,12 +168,12 @@ class pyfsm_http_visualizer:
         while self.fsmbind.ev_running.is_set():
             if not self.fsmbind.q_output.empty():
                 _ = self.fsmbind.q_output.get()
-                print("queue get on transmit")
+                # print("queue get on transmit")
                 # aqui hay que llamar a la parte grafica
                 if self.dgraph is not None:
                     msg = self.dgraph.build_svg()
                     await self.ws_broadcast(msg)
-                    print(f"called build_svg")
+                    # print(f"called build_svg")
             await asyncio.sleep(0.1)
 
     async def start(self):
@@ -199,7 +202,7 @@ class test_fsm(fsm):
         self.a = 0
 
     def tcondition(self)->bool:
-        return (self.a % 10) == 0 
+        return True #(self.a % 10) == 0 
 
     def step(self) -> None:
         self.a += 1
@@ -230,7 +233,7 @@ if __name__ == '__main__':
     
     service = pyfsm_http_visualizer()
     service.bind(f)
-    service.tasks.append(f.printstate)
+    # service.tasks.append(f.printstate)
 
     service.fsmbind.ev_loop_flag.set()
     try: 
