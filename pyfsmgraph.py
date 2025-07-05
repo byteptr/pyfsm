@@ -86,7 +86,8 @@ def _gv_active_node_dark_properties():
     return { 
             "color": "#FFFF00", 
             "fillcolor": "#E5FFCC:#00FFFF",
-            "fontcolor" : "#000000"
+            "fontcolor" : "#000000",
+            "gradientangle" : "120",
             }
 
 def _gv_active_node_ligth_properties():
@@ -102,7 +103,8 @@ def _gv_active_init_node_dark_properties():
             "color": "#FFFF00",
             "fillcolor": "#E5FFCC:#00FFFF",
             "gradientangle" : "120",
-            "fontcolor" : "#000000"
+            "fontcolor" : "#000000",
+            "gradientangle" : "120",
             }
 
 def _gv_active_init_node_ligth_properties():
@@ -120,9 +122,9 @@ def _gv_active_edge_dark_properties():
             }
 
 def _gv_active_edge_ligth_properties():
-    return {"color": "#000000", 
+    return {"color": "#FF0000", 
             "arrowhead": "normal", 
-            "fontcolor" : "#000000"
+            "fontcolor" : "#FF0000"
             }
 
 def _gv_default_background_ligth_properties():
@@ -130,6 +132,13 @@ def _gv_default_background_ligth_properties():
 
 def _gv_default_background_dark_properties():
     return {'bgcolor' : '#303030'}
+
+def _gv_default_color_ligth():
+    return {'color' : '#000000'}
+
+def _gv_default_color_dark():
+    return {'color' : "#DCDCAA"}
+
 
 # Clase que gestiona propiedades
 @dataclass
@@ -170,6 +179,9 @@ class gvproperties:
                                   _gv_default_background_ligth_properties)
     bgcolor_dark : dict = field(default_factory=\
                                 _gv_default_background_dark_properties)
+
+    color_ligth : dict = field(default_factory=_gv_default_color_ligth)
+    color_dark : dict = field(default_factory=_gv_default_color_dark)
 
     def __post__init__(self):
         if self.mode == 'dark':
@@ -256,7 +268,15 @@ class dynamic_graph:
         # edges 
 
         for transition in self.node_transitions.keys():
-            dot.edge(*self.node_transitions[transition], label = transition)
+            if transition not in self.fsm_inst.true_transitions_name:  
+                dot.edge(*self.node_transitions[transition], label = transition)
+            else:
+                if self.properties.mode == 'ligth':
+                    dot.edge(*self.node_transitions[transition], label = transition, 
+                             **self.properties.active_edge_ligth_properties)
+                else:
+                    dot.edge(*self.node_transitions[transition], label = transition, 
+                             **self.properties.active_edge_dark_properties)
 
         # if os.path.exists('diagrama_test.pdf'):
         #     os.remove('diagrama_test.pdf')

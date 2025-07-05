@@ -82,8 +82,6 @@ class pyfsm_http_visualizer:
         print("_run() method started...")
         # main running loop: while ev_running is set. 
         while self.fsmbind.ev_running.is_set():
-            # self.fsm_instance.step()
-            # time.sleep(self.fsmbind.sleep_time)
             if self.fsmbind.ev_async_flag.is_set: 
                 if self.fsmbind.ev_loop_flag.is_set():
                     self.fsm_instance.step()
@@ -138,8 +136,15 @@ class pyfsm_http_visualizer:
     async def ws_handle(self, websocket):
         self.clients.add(websocket)
         # print("Client connected.")
+        if self._mode == 'ligth': 
+            bg = self.dgraph.properties.bgcolor_ligth['bgcolor']
+            tcol = self.dgraph.properties.color_ligth['color']
+        else: 
+            bg = self.dgraph.properties.bgcolor_dark['bgcolor']
+            tcol = self.dgraph.properties.color_dark['color']
+
         await websocket.send(json.dumps(
-                                        {'style': "body { background-color: #303030; color: white; }"}
+                                        {'style': f"body {{ background-color: {bg}; color: {tcol}; }}"}
                                         )
                              )
         try:
@@ -147,6 +152,10 @@ class pyfsm_http_visualizer:
                 print(f"Message from client {msg}")
                 await asyncio.sleep(0)
         except websockets.exceptions.ConnectionClosedOK:
+            pass
+        except websockets.exceptions.ConnectionClosedError:
+            pass
+        except Exception as e:
             pass
         finally:
             self.clients.remove(websocket)
@@ -157,10 +166,8 @@ class pyfsm_http_visualizer:
                     *[ws.send(msg) for ws in self.clients],
                     return_exceptions=True
             )
-            # print(f"ws clients {self.clients}")
         else: 
             pass
-            # print("No ws clients!")
 
     async def start_websocket(self):
         async with websockets.serve(self.ws_handle, self.ws_host, self.ws_port):
@@ -174,18 +181,14 @@ class pyfsm_http_visualizer:
         while self.fsmbind.ev_running.is_set():
             if not self.fsmbind.q_output.empty():
                 _ = self.fsmbind.q_output.get()
-                # print("queue get on transmit")
-                # aqui hay que llamar a la parte grafica
                 if self.dgraph is not None:
                     msg = self.dgraph.build_svg()
                     await self\
                     .ws_broadcast(\
-                        json.dumps({'svg': msg,
-                                    # 'style': "body { background-color: #303030; color: white; }",
-                                    }
-                                )
+                    json.dumps({'svg': msg,
+                                }
+                        )
                     )
-                    # print(f"called build_svg")
             await asyncio.sleep(0.1)
 
     async def start(self):
@@ -245,7 +248,7 @@ if __name__ == '__main__':
     
     service = pyfsm_http_visualizer(mode = 'dark')
     service.bind(f)
-    # service.tasks.append(f.printstate)
+    service.tasks.append(f.printstate)
 
     service.fsmbind.ev_loop_flag.set()
     try: 

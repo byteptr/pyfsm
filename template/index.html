@@ -43,27 +43,6 @@
         }
     };
 
-    // socket.onmessage = (event) => {
-    //     // if (event.data.trim().startsWith.('<'))
-    //     // {
-    //     //   const svgContainer = document.getElementById("svg-container");
-    //     //   svgContainer.innerHTML = event.data; // Insertar SVG como HTML
-    //     // } else {
-    //     try{
-    //         const dct = JSON.parse(event.data)
-    //         if (dct.hasOwnProperty("svg")) {
-    //           const svgContainer = document.getElementById("svg-container");
-    //           svgContainer.innerHTML = dct.svg; // Insertar SVG como HTML
-    //         }
-    //     } catch(e)
-    //     {
-    //       const svgContainer = document.getElementById("svg-container");
-    //       svgContainer.innerHTML = event.data; // Insertar SVG como HTML
-    //     }
-    //         // }
-    //     }
-    // };
-    //
     socket.onopen = () => {
       console.log("Conectado al WebSocket");
     };
