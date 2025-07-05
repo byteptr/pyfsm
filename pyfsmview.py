@@ -50,12 +50,13 @@ from pyfsm import fsm
 from pyfsm import fsm_bindings
 from pyfsmgraph import dynamic_graph
 import time 
+import json 
 
 
 
 class pyfsm_http_visualizer: 
     def __init__(self, http_port:int=8000, ws_port:int=8765, ws_host : str = 'localhost',
-                 html_template='./template/index.html'):
+                 html_template : str ='./template/index.html', mode : str = 'ligth'):
 
         self.http_port = http_port
         self.ws_port = ws_port
@@ -69,11 +70,12 @@ class pyfsm_http_visualizer:
         self.fsmbind : fsm_bindings = fsm_bindings() 
         self.tasks : List[Callable[...,Awaitable[Any]]] = []
         self.dgraph : Optional[dynamic_graph] = None 
+        self._mode : str = mode 
 
     def bind(self, f: fsm)->None:
         self.fsm_instance = f
         self.fsm_instance.binding = self.fsmbind
-        self.dgraph = dynamic_graph(f)
+        self.dgraph = dynamic_graph(f, mode = self._mode)
 
     
     def _run(self): 
@@ -135,10 +137,14 @@ class pyfsm_http_visualizer:
 
     async def ws_handle(self, websocket):
         self.clients.add(websocket)
-        print("Client connected.")
+        # print("Client connected.")
+        await websocket.send(json.dumps(
+                                        {'style': "body { background-color: #303030; color: white; }"}
+                                        )
+                             )
         try:
             async for message in websocket:
-                print("Message from client")
+                print(f"Message from client {msg}")
                 await asyncio.sleep(0)
         except websockets.exceptions.ConnectionClosedOK:
             pass
@@ -172,7 +178,13 @@ class pyfsm_http_visualizer:
                 # aqui hay que llamar a la parte grafica
                 if self.dgraph is not None:
                     msg = self.dgraph.build_svg()
-                    await self.ws_broadcast(msg)
+                    await self\
+                    .ws_broadcast(\
+                        json.dumps({'svg': msg,
+                                    # 'style': "body { background-color: #303030; color: white; }",
+                                    }
+                                )
+                    )
                     # print(f"called build_svg")
             await asyncio.sleep(0.1)
 
@@ -231,7 +243,7 @@ if __name__ == '__main__':
     f.compile()
 
     
-    service = pyfsm_http_visualizer()
+    service = pyfsm_http_visualizer(mode = 'dark')
     service.bind(f)
     # service.tasks.append(f.printstate)
 

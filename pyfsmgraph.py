@@ -196,8 +196,8 @@ class gvproperties:
                                                        _gv_edge_ligth_properties) 
 
 class dynamic_graph: 
-    def __init__(self, f:fsm) -> None:
-        self.properties = gvproperties(mode='ligth')
+    def __init__(self, f:fsm, mode : str = 'light') -> None:
+        self.properties = gvproperties(mode=mode.lower())
         self.node_transitions = dict()
         self.states : list = []
         self.initial_state : Optional[str] = ''
