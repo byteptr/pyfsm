@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>FSM remote monitot</title>
+</head>
+<body>
+  <h1 style="font-family: Consolas; text-align: center;">FSM remote monitor</h1>
+     <style>
+      /* Only for svg-container */
+      #svg-container {
+        text-align: center;
+        padding: 1em;
+      }
+
+      #svg-container svg {
+        display: inline-block;
+        width: 75%;
+        height: auto;
+      }
+    </style>
+
+  <div id="svg-container"></div>
+
+  <script>
+    const socket = new WebSocket("ws://localhost:8765");
+
+    socket.onmessage = (event) => {
+        try {
+            const dct = JSON.parse(event.data);
+            if (dct.hasOwnProperty("svg")) {
+                const svgContainer = document.getElementById("svg-container");
+                svgContainer.innerHTML = dct.svg;
+            }
+            if (dct.hasOwnProperty("style")) {
+              const styleTag = document.createElement("style");
+              styleTag.innerHTML = dct.style;
+              document.head.appendChild(styleTag);
+            }
+        } catch(e) {
+            const svgContainer = document.getElementById("svg-container");
+            svgContainer.innerHTML = event.data;
+        }
+    };
+
+    socket.onopen = () => {
+      console.log("Conectado al WebSocket");
+    };
+
+    socket.onerror = (error) => {
+      console.error("WebSocket error:", error);
+    };
+  </script>
+</body>
+</html>
+

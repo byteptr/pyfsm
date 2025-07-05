@@ -59,14 +59,21 @@ try:
     import pandas as pd
     from collections import deque
     from dataclasses import dataclass
+    from dataclasses import field
+    from typing import Any
     from typing import List
     from typing import Union, Callable
     from typing import Optional
+    from typing import Deque
+    from typing import Set
+    from queue import Queue
+    from threading import Event
 except Exception as e: 
     logging.error(e)
-    raise
+    raise e
 
- __graphviz_present__ = None
+__graphviz_present__ = None
+
 try:
     from graphviz import Digraph
     __graphviz_present__ = True
@@ -181,82 +188,48 @@ class FSMTransitionEvalError(FSMRuntimeException):
     pass
 
 
-@dataclass
-class gv_node_properties:
-    label : str= ''
-    shape : str = 'circle'
-    style : str = 'filled'
-    color :str = '#FF0000'
-    fillcolor : str = '#FFFFFF'
-
-    fontname : str = 'consolas'
-    fontcolor : str = '#000000'
-    fontsize : Optional[int] = 14
-
-    penwidth : Optional[int] = None
-    width : Optional[float] = None 
-    height : Optional[float] = None 
-    fixedsize : Optional[bool] = False 
-    aspect : Optional[str] = None
-
-    tooltip : Optional[str] = None
-    URL : Optional[str] = None
-    image : Optional[str] = None
-    xlabel : Optional[str] = None
-    labelloc : Optional[str] = None 
-    labeljust : Optional[str] = None
-    margin : Optional[str] = None
-
 @dataclass 
-class gv_edge_properties:
-    label : str = ''
-    xlabel : Optional[str] = None 
-    fontname : str = 'consolas'
-    fontsize : int = 14
-    fontcolor : str = '#000000'
-    labeldistance : Optional[int] = None 
-    labelangle : Optional[float] = None 
-    decorate : bool = True 
+class fsm_bindings:
 
-    style : Optional[str] = None 
-    color : Optional[str] = None 
-    penwidth : Optional[int] = None 
-    arrowhead : Optional[str] = 'normal'
-    arrowtail : Optional[str] = None
-    dir : Optional[str] = None 
-    
-    minlen : Optional[int] = None
-    weight : Optional[int] = None
-    splines : Optional[str] = None
+    CMD_START : str = 'start' # start running FSM
+    CMD_STOP : str = 'stop' # stop running FSM
+    CMD_STEP : str = 'step' # execute step by step FSM  (event trigger)
+    CMD_RESET : str = 'reset' # resets the finite state machine
+    CMD_QUIT : str = 'quit' #  Exits from FSM running thread 
+    CMD_TIME_TRIGGER : str = 'time_triggered' # uses sleep()
+    CMD_EVENT_TRIGGER : str = 'event_triggered' # uses step 
+    CMD_GET_TRIGGER : str = 'get_trigger' # get trigger type event or sleep
+    CMD_SET_SLEEP : str = 'set_sleep' # change sleep time
+    CMD_GET_SLEEP : str = 'get_sleep' # get sleep time
 
-    tailport : Optional[str] = None 
-    headport : Optional[str] = None
+    MSG_TRIGGER_TIME : str = 'sleep_trigger'
+    MSG_TRIGGER_EVENT : str = 'event_trigger'
 
-    pos : Optional[str] = None 
+    q_input : Queue = field(default_factory=Queue)
+    q_output : Queue = field(default_factory=Queue)
+    ev_running : Event = field(default_factory = Event)
+    ev_loop_flag : Event = field(default_factory = Event)
+    ev_async_flag : Event = field(default_factory = Event)
+    sleep_time : float = 0.5
+    sleep_async : float = 0.5
 
+    def __post__init__(self) -> None: 
+        self._inmutable__fields_ : Set = set()
+        #Declare here non mutable fields by set comprehension 
+        # Where looking for the fields which contains CMD and MSG at begining
+        self._inmutable__fields_.update( 
+         {cts for cts in filter(lambda x: True if x.split('_')[0] in {'CMD','MSG'} \
+            else False, self.__class__.__dict__.keys())})
+        # lastly protect _inmutable__fields_ itself against mutability 
+        self._inmutable__fields_.add('_inmutable__fields_')
 
-    tooltip : Optional[str] = None
-    URL : Optional[str] = None
-    target : Optional[str] = None
-    tooltip : Optional[str] = None
-
-   
-@dataclass 
-class gvproperties:
-    default_node_properties = gv_node_properties() 
-    default_edge_properties = gv_edge_properties()
-    special_nodes = dict()
-    special_edges = dict()
-
-    def add_node_properties(self, nodename, **kwargs): 
-        self.special_nodes[nodename] = kwargs
-
-    def del_node_properties(self, nodename):         
-        del self.special_nodes[nodename]
-
+    def __setattr__(self, name: str, value: Any, /) -> None:
+        if hasattr(self,"_inmutable__fields_") and name in self._inmutable__fields_: 
+            raise AttributeError(f'{name} is not mutable.')
+        else:
+            super().__setattr__(name,value)
 
 class fsm:
-    
     """
     Represents a finite state machine (FSM).
 
@@ -293,22 +266,24 @@ class fsm:
         self.parse_state = \
             re.compile(r'^\s*(?P<origin>\w+)\s*(?P<tsymbol>\-\>|\s*,\s*|=>)\s*'+\
             r'(?P<dest>\w+)\s*:\s*(?P<transition>\w+)\s*$')
-        self.tmatrix = None 
-        self.machine_trasitions = []
-        self.true_transitions = []
-        self.true_transitions_name = []
-        self.entry_point = None
+        self.tmatrix : Optional[np.ndarray] = None 
+        self.machine_trasitions : List = []
+        self.true_transitions : List = []
+        self.true_transitions_name : List = []
+        self.entry_point : Optional[str] = None
         self.conditions = dict()
-        self.state = None
+        self.state : Optional[int] = None
         self.states = []
         self.dead_states = []
-        self.state_history = deque([None]*history_len, maxlen = history_len) 
+        self.state_history : Deque[Optional[int]]= deque([None]*history_len, maxlen = history_len) 
         self.history_len = history_len
         self.check_cycles = False
         self.tsymbol = None
         self.check_disjoint = True 
         self.warnings = False 
         self.debug = False 
+        # Class bindings 
+        self.binding : Optional[fsm_bindings] = None
     
     def reset(self)->None:
         """
@@ -694,7 +669,7 @@ class fsm:
             elif v == 'state_history':
                 msg += f'{v} : {[self.states[s] for s in filter(lambda x:x is not None, self.state_history)]}\n'
             elif v == 'tmatrix': 
-                msg += f'\n{v}:\n\n' + self.format_matrix(none_as_zero=True)+'\n\n'
+                msg += f'\n{v}:\n\n' + self.printable_matrix(none_as_zero=True)+'\n\n'
                 msg += f'\n{"Accesibility Matrix"}:\n\n' + \
                     self.printable_matrix(M = self.get_allPaths(),none_as_zero=True)+'\n\n'
         msg = msg.rstrip()
