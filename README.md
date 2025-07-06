@@ -51,6 +51,12 @@ Coming soon....
     print('done')
     print(f)
 ```
+# pyfsmview 
+## Remote HTTP vFSM viewer on real time 
+
+![Dark mode](img/fsm_dark.gif)
+![Ligth mode](img/fsm_ligth.gif)
+
 
 ## License
 
