@@ -280,20 +280,26 @@ class dynamic_graph:
 
         # edges
         for transition in self.node_transitions.keys():
-            if transition not in self.fsm_inst.true_transitions_name:  
-                dot.edge(*self.node_transitions[transition], label = transition)
-            else:
-                if self.properties.mode == 'ligth':
-                    dot.edge(*self.node_transitions[transition], label = transition, 
-                             **self.properties.active_edge_ligth_properties)
-                else:
-                    dot.edge(*self.node_transitions[transition], label = transition, 
-                             **self.properties.active_edge_dark_properties)
+            if transition not in self.fsm_inst.true_transitions_name: 
+                
+                dd = self.get_custom_edge_properties(transition) 
+                if not 'label' in dd.keys():
+                    dd['label'] = transition
+                dot.edge(*self.node_transitions[transition],**dd)
 
-        # if os.path.exists('diagrama_test.pdf'):
-        #     os.remove('diagrama_test.pdf')
-        #
-        # dot.render('diagrama_test', format='pdf', cleanup=True)
+            else:
+
+                dd = self.get_custom_edge_properties(transition) 
+                if not 'label' in dd.keys():
+                    dd['label'] = transition
+
+                if self.properties.mode == 'ligth':
+                    dot.edge(*self.node_transitions[transition],  
+                             **{**self.properties.active_edge_ligth_properties, **dd})
+                else:
+                    dot.edge(*self.node_transitions[transition],  
+                             **{**self.properties.active_edge_dark_properties, **dd})
+
         return dot.pipe(format="svg").decode("utf-8")
 
     def add_custom_node_properties(self, node : str, properties : Dict[str,str]):
