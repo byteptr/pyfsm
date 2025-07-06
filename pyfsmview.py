@@ -250,6 +250,14 @@ if __name__ == '__main__':
     service.bind(f)
     service.tasks.append(f.printstate)
 
+    if service.dgraph is not None:
+        service.dgraph.add_custom_node_properties('A', {'label': 'init', })
+        service.dgraph.add_custom_node_properties('B', {'label': r'state\nB'})
+        service.dgraph.add_custom_node_properties('C', {'label': r'state\nC'})
+        service.dgraph.add_custom_node_properties('D', {'label': r'state\nD'})
+        
+        service.dgraph.add_custom_edge_properties('t0', {'penwidth': '3'})
+
     service.fsmbind.ev_loop_flag.set()
     try: 
         asyncio.run(service.start())
