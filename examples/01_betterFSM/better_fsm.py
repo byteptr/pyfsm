@@ -1,9 +1,10 @@
+
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-example_fsm.py
+better_fsm.py
 
-This example provides the simplest usage of FSM 
+A better example and cleaner code using class inheritance
 
 Author: Raul Alvarez
 Email: ralvarezb78@gmail.com
@@ -31,26 +32,56 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
-import pyfsm 
+
+from pyfsm import fsm 
+
+class myfsm(fsm):
+    # Constructor 
+    def __init__(self, *args, **kwargs) -> None:
+        # Never forgetinitialize base class
+        super().__init__(*args,**kwargs)
+        # countervariable and increment
+        self.counter : int = 0
+        self.increment : int = 1
+
+    # Transition functions
+    def t0(self)->bool:
+        return (self.counter % 10) == 0  
+
+    def t1(self)->bool:
+        return (self.counter % 7) == 0  
+    
+    def t2(self)->bool:
+        return (self.counter % 11) == 0 
+
+    def t3(self)->bool:
+        return True 
+
+    # Overload of control functions
+    def step(self): 
+        super().step()
+        self.counter += self.increment
+
+    def reset(self): 
+        super().reset()
+        self.counter = 0
+
+
 if __name__ == "__main__": 
 
-    def test_fcn():
-        return True
-
-    f = fsm()
+    f = myfsm()
 
     f.add_transition('A => B : t0')
     f.add_transition('B => C : t1')
     f.add_transition('C => A : t2')
     f.add_transition('D => A : t3')
 
-    f.add_condition('t0', 'a%10 == 0')
-    f.add_condition('t1', 'a%7 == 0')
-    f.add_condition('t2', 'a%11 == 0')
-    f.add_condition('t4', test_fcn)
+    f.add_condition('t0', f.t0)
+    f.add_condition('t1', f.t1)
+    f.add_condition('t2', f.t2)
+    f.add_condition('t3', f.t3)
     
     f.compile()
-    a = 0
 
     for j in range(130):
         prev_state = f.states[f.state]
@@ -59,10 +90,7 @@ if __name__ == "__main__":
         if prev_state != f.states[f.states[f.state]]:
             print(f"{prev_state}->{f.states[f.state]}")
 
-        a += 1
-
     print('done')
     print(f)
     print("class printed")
-
 

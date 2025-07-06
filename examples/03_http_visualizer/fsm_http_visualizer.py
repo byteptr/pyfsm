@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-example_fsm.py
 
-This example provides the simplest usage of FSM 
+Functional example of HTTP visualizer/viewer of state machine on real time 
 
 Author: Raul Alvarez
 Email: ralvarezb78@gmail.com
@@ -31,38 +30,53 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
-import pyfsm 
-if __name__ == "__main__": 
 
-    def test_fcn():
-        return True
+import asyncio 
+from pyfsm import fsm
+from pyfsmview import pyfsm_http_visualizer 
 
-    f = fsm()
+class test_fsm(fsm):
+    def __init__(self, history_len=10) -> None:
+        super().__init__(history_len)
+        self.a = 0
 
+    def tcondition(self)->bool:
+        return self.a == 0 
+
+    def step(self) -> None:
+        self.a += 1
+        self.a %= 2
+        super().step()
+        
+if __name__ == '__main__':
+
+    # First create an instance of FSm as usual
+    f = test_fsm()
+    # Define states and transitions 
     f.add_transition('A => B : t0')
     f.add_transition('B => C : t1')
-    f.add_transition('C => A : t2')
+    f.add_transition('C => D : t2')
     f.add_transition('D => A : t3')
-
-    f.add_condition('t0', 'a%10 == 0')
-    f.add_condition('t1', 'a%7 == 0')
-    f.add_condition('t2', 'a%11 == 0')
-    f.add_condition('t4', test_fcn)
-    
+    # Attach functions or expressions to transitions 
+    f.add_condition('t0', f.tcondition)
+    f.add_condition('t1', f.tcondition)
+    f.add_condition('t2', f.tcondition)
+    f.add_condition('t3', f.tcondition)
+    # Compile
     f.compile()
-    a = 0
 
-    for j in range(130):
-        prev_state = f.states[f.state]
-        f.step()
+    # Create an HTTP visualizer service
+    service = pyfsm_http_visualizer(mode = 'dark')
+    # bind to FSM 
+    service.bind(f)
+    # Set ev_loop_flag to allow run the step() on FSM
+    service.fsmbind.ev_loop_flag.set()
 
-        if prev_state != f.states[f.states[f.state]]:
-            print(f"{prev_state}->{f.states[f.state]}")
-
-        a += 1
-
-    print('done')
-    print(f)
-    print("class printed")
+    # Start service and run until Ctrl-C pressed
+    try: 
+        asyncio.run(service.start())
+    except KeyboardInterrupt: 
+        service.fsmbind.ev_running.clear()
+        print("Ctrl-C detected. exit()")
 
 

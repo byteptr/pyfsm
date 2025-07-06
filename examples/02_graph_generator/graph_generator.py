@@ -1,9 +1,8 @@
+
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-example_fsm.py
-
-This example provides the simplest usage of FSM 
+Example using graph generator
 
 Author: Raul Alvarez
 Email: ralvarezb78@gmail.com
@@ -31,38 +30,33 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
-import pyfsm 
-if __name__ == "__main__": 
 
-    def test_fcn():
-        return True
+from pyfsm import fsm 
+from pyfsmgraph import dynamic_graph
+
+if __name__ == "__main__":
 
     f = fsm()
 
     f.add_transition('A => B : t0')
     f.add_transition('B => C : t1')
-    f.add_transition('C => A : t2')
+    f.add_transition('C => D : t2')
     f.add_transition('D => A : t3')
 
     f.add_condition('t0', 'a%10 == 0')
-    f.add_condition('t1', 'a%7 == 0')
-    f.add_condition('t2', 'a%11 == 0')
-    f.add_condition('t4', test_fcn)
-    
+    f.add_condition('t1', 'a%10 == 0')
+    f.add_condition('t2', 'a%10 == 0')
+    f.add_condition('t3', 'a%10 == 0')
     f.compile()
-    a = 0
 
-    for j in range(130):
-        prev_state = f.states[f.state]
-        f.step()
+    print(f'Entry point {f.entry_point}')
+    print(f'State {f.state}')
+    
+    dg = dynamic_graph(f)
+    f.state = 0
 
-        if prev_state != f.states[f.states[f.state]]:
-            print(f"{prev_state}->{f.states[f.state]}")
-
-        a += 1
-
-    print('done')
-    print(f)
-    print("class printed")
+    print(dg.node_transitions)
+    print(dg.states)
+    _ = dg.build_svg()
 
 
