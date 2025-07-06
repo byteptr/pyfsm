@@ -38,6 +38,7 @@ from graphviz import Digraph
 from numpy._core.numeric import where
 from pyfsm import fsm 
 from typing import Optional
+from typing import Dict
 
 # Funciones de configuración por defecto
 
@@ -214,6 +215,8 @@ class dynamic_graph:
         self.states : list = []
         self.initial_state : Optional[str] = ''
         self.__get_fsm__(f)
+        self.custom_node_properties : Dict[str,Dict[str,str]] = {}
+        self.custom_edge_properties : Dict[str,Dict[str,str]] = {}
 
     def __get_fsm__(self,f:fsm):
         self.fsm_inst = f
@@ -246,27 +249,36 @@ class dynamic_graph:
 
         if self.states[self.fsm_inst.state] == self.initial_state: 
             if self.properties.mode == 'ligth':
-                dot.node(str(self.initial_state), **self.properties.active_init_ligth_properties)
+                dot.node(str(self.initial_state), 
+                         **{**self.properties.active_init_ligth_properties,
+                            **self.get_custom_node_properties(self.initial_state)})
             else:
-                dot.node(str(self.initial_state), **self.properties.active_init_dark_properties)
+                dot.node(str(self.initial_state), 
+                         **{**self.properties.active_init_dark_properties,
+                            **self.get_custom_node_properties(self.initial_state)})
         else: 
             if self.properties.mode == 'ligth':
-                dot.node(str(self.initial_state), **self.properties.default_init_node_light_properties)
+                dot.node(str(self.initial_state), 
+                         **{**self.properties.default_init_node_light_properties,
+                            **self.get_custom_node_properties(self.initial_state)})
             else: 
-                dot.node(str(self.initial_state), **self.properties.default_init_node_dark_properties)
+                dot.node(str(self.initial_state), 
+                         **{**self.properties.default_init_node_dark_properties, 
+                            **self.get_custom_node_properties(self.initial_state)})
 
 
         for node in (n for n in self.states if n != self.initial_state):
             if node != self.states[self.fsm_inst.state]:
-                dot.node(node)
+                dot.node(node, **self.get_custom_node_properties(node))
             else:
                 if self.properties.mode == 'ligth':
-                    dot.node(node, **self.properties.active_node_light_properties)
+                    dot.node(node, **{**self.properties.active_node_light_properties, 
+                             **self.get_custom_node_properties(node)})
                 else: 
-                    dot.node(node, **self.properties.active_node_dark_properties)
+                    dot.node(node, **{**self.properties.active_node_dark_properties,
+                             **self.get_custom_node_properties(node)})
 
-        # edges 
-
+        # edges
         for transition in self.node_transitions.keys():
             if transition not in self.fsm_inst.true_transitions_name:  
                 dot.edge(*self.node_transitions[transition], label = transition)
@@ -283,6 +295,26 @@ class dynamic_graph:
         #
         # dot.render('diagrama_test', format='pdf', cleanup=True)
         return dot.pipe(format="svg").decode("utf-8")
+
+    def add_custom_node_properties(self, node : str, properties : Dict[str,str]):
+        self.custom_node_properties[node] = properties
+
+    def add_custom_edge_properties(self, edge : str, properties : Dict[str,str]):
+        self.custom_edge_properties[edge] = properties
+
+    def get_custom_node_properties(self, node)->Dict[str,str]:
+        d = self.custom_node_properties.get(node)
+        if d is None: 
+            return {}
+        else: 
+            return d
+
+    def get_custom_edge_properties(self, edge)->Dict[str,str]:
+        d = self.custom_edge_properties.get(edge)
+        if d is None: 
+            return {}
+        else: 
+            return d
 
 if __name__ == "__main__":
     f = fsm()
