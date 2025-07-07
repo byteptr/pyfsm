@@ -73,11 +73,11 @@ pyfsm view is a minimalist http/websocket server to visualize and debug FSM from
 
 <p align="center">
   <img src="img/fsm_dark.gif" alt="Dark mode" width="300"/>  
-    Dark mode
+    <br>Dark mode<br>
 </p>
 <p align="center">
   <img src="img/fsm_ligth.gif" alt="Ligth mode" width="300"/>  
-    Ligth mode
+    <br>Ligth mode<br>
 </p>
 
 ## License
