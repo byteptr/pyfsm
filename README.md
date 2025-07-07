@@ -15,11 +15,22 @@ Module for the management, representation, and analysis of finite state machines
 
 This module provides classes and functions to create, manage, and analyze finite state machines (FSM). It offers tools to represent FSMs, evaluate their structure, and identify important properties such as state accessibility and cycle detection.
 The FSM is repretsented by square matrix form where the matrix is an adjacency matrix that represents the directed graph of the deterministic automata.
-Here, the rows represent the current state and the columns the next state; each element $\delta(i,j)$ represents a transition condition which can be 1 or 0, (True or False).
+Here, the rows represent the current state and the columns the next state; each element $a(i,j) = \delta_k$ represents a transition condition which can be 1 or 0, (True or False), 
+so in this case i-th state goes to j-th state if k-th condition is true.
+
 
 <p align="center">
   <img src="img/matrix_fsm.png" >
 </p>
+
+This matrix represents the following FSM: 
+
+
+<p align="center">
+  <img src="img/diagram.png" >
+</p>
+
+
 
 ## Installation
 
@@ -34,16 +45,13 @@ Coming soon....
 
     f.add_transition('A => B : t0')
     f.add_transition('B => C : t1')
-    f.add_transition('C => A : t3')
-    f.add_transition('D => A : t4')
-    f.add_transition('D => D : t2')
+    f.add_transition('C => A : t2')
+    f.add_transition('D => A : t3')
 
     f.add_condition('t0', 'a%10 == 0')
     f.add_condition('t1', 'a%10 == 0')
-    f.add_condition('t3', 'a%10 == 0')
     f.add_condition('t2', 'a%10 == 0')
-    f.add_condition('t7', 'a%10 == 0')
-    f.add_condition('t4', test_fcn)
+    f.add_condition('t3', test_fcn)
     
     f.compile()
     a = 0
