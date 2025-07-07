@@ -18,7 +18,7 @@ The FSM is repretsented by square matrix form where the matrix is an adjacency m
 Here, the rows represent the current state and the columns the next state; each element $\delta(i,j)$ represents a transition condition which can be 1 or 0, (True or False).
 
 <p align="center">
-  <img src="img/matrix_fsm.svg" >
+  <img src="img/matrix_fsm.png" >
 </p>
 
 ## Installation
