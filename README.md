@@ -11,10 +11,15 @@ Module for the management, representation, and analysis of finite state machines
 - Detect windowed state-cycles.
 - Detect closed cycles.
 
-## Description
+## Introduction
 
 This module provides classes and functions to create, manage, and analyze finite state machines (FSM). It offers tools to represent FSMs, evaluate their structure, and identify important properties such as state accessibility and cycle detection.
-The FSM is repretsented by square matrix form where the matrix is an adjacency matrix that represents the directed graph of the deterministic automata.
+I often code state machines to drive, test hardware, and make measurement tools. So, tired about verbosity I decide to make my own tool to describe FSMs in very direct fashion.
+Then I decided to add a tool to visualize the states on real time.
+
+## Description
+
+The FSM is represented by square matrix form where the matrix is an adjacency matrix that represents the directed graph of the deterministic automata.
 Here, the rows represent the current state and the columns the next state; each element $a(i,j) = \delta_k$ represents a transition condition which can be 1 or 0, (True or False), 
 so in this case i-th state goes to j-th state if k-th condition is true.
 
@@ -25,16 +30,55 @@ so in this case i-th state goes to j-th state if k-th condition is true.
 
 This matrix represents the following FSM: 
 
-
 <p align="center">
   <img src="img/diagram.png" >
 </p>
 
+In order to describe a FSM you need a 3-element Tuple: $s_{origin}\to s_{destiny}:t_{condition}$ where $s_{k}$ are the states and $t_k$ transition conditions: functions or expressions 
+to be evaluated if theu are **true** or **false**.  
+
+To describe correctly FSM in deterministic case, the following conditions must be fullfilled: 
+
+1. A transition condition from state $s_i$ to $s_j$ is unique
+1. Given a state $s_i$, whose outgoing flow branches into several paths toward the possible states $s_{k},s_{r},s_{t},...,s_{v}$
+    according to the associated transitions $\delta_{i,k},\delta_{i,r},\delta_{i,t},...,\delta_{i,v}$, these transitions must satisfy the condition of being mutually exclusive. 
+    That is, only one of them must be true in the s i-th state.
+    $$\bigcap^{\infty} \delta_{i,m} = 0$$
+      $$ s := s_{k} | s_{i} \cap \delta_{i,k}$$
+1. Transition condition $s_{origin}\to s_{destiny}:t_{condition}$ must be unique. 
+
+## Dead states detection 
+Dead states are non-reachable states or states described on FSM that are not reachable because all entries on a given column related to this state are zero.  
+To ensure good FSM description a static check for dead states can be performed throug accesibility matrix $R$.
 
 
-## Installation
+The accessibility matrix (also known as the reachability matrix) is a matrix that shows which nodes in a graph can reach which other nodes, either directly or through a path of one or more steps.
+If you start with an adjacency matrix $M$, which tells you which nodes are directly connected, the accessibility matrix $R$ tells you whether there is any path at all from node 
+$i$ to node $j$, regardless of how many steps it takes.
+$$R = \bigwedge_{k=1}^{N} M^k$$
+I prefer to perfom matrix summation instead OR operation, first because all non zero entries are the reachability between states like boolean matrix, and 
+second, this will give us the number of paths of any length (1 to N), from state $i$ to state $j$. So: 
+$$R = \sum_{k=1}^{N} M^k$$
+- $R_{i,j}$ show us how many paths of length 1 to N exists from state $i$ to state $j$.
+- If $R_{i,j}$ = 0 there is no path between i-th and j-th states.
+- If $R_{i,j}$ > 0 there is one or more paths between i-th and j-th states.
 
-Coming soon....
+For dead states detection, please, refer to ```get_allPaths()``` method.
+
+## Loops or cycle detection
+Sometimes, state machines are correctly coded in theoretical terms. However, when they interact with the physical world, unforeseen conditions may arise. Even if the code is correct, the system can enter a limit cycle that may affect an automated process.
+For example, let's suppose we have implemented an FSM to characterize and measure battery charging curves. Suppose that full charge detection is based on voltage measurement rather than a coulomb-counting gauge. If, for some reason (battery degradation, a fault in the charging system, etc.), the system fails to reach the threshold voltage, it could enter a cycle like charge → verification → reset → charge → verification → reset...
+Since such cycles can be arbitrarily long and vary in nature, two functions have been provided for cycle detection.
+
+### Closed cycle detection 
+Detects if exists a closed cycles on state machine.
+Refer to ```detect_closed_cycle()```
+
+### Windowed cycle detection
+Detects cycles on a window.
+Refer to ```detect_windowed_cycles()```
+
+
 
 ## Usage
 ```
@@ -66,6 +110,11 @@ Coming soon....
     print(f)
 ```
 
+## Exception classes
+<p align="center">
+  <img src="img/fsm_exception_class.png" alt="Ligth mode" />  
+    <br>Exception hierarchy<br>
+</p>
 
 # pyfsmview 
 ## Remote HTTP FSM viewer in real time 
@@ -80,14 +129,10 @@ pyfsm view is a minimalist http/websocket server to visualize and debug FSM from
     <br>Ligth mode<br>
 </p>
 
-## Exception classes
-<p align="center">
-  <img src="img/fsm_exception_class.png" alt="Ligth mode" />  
-    <br>Exception hierarchy<br>
-</p>
 
+## Installation
 
-
+Coming soon....
 
 ## License
 
