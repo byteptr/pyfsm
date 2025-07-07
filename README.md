@@ -72,13 +72,22 @@ Coming soon....
 pyfsm view is a minimalist http/websocket server to visualize and debug FSM from pyfsm module in real timeto visualize and debug FSM from pyfsm module on real time.
 
 <p align="center">
-  <img src="img/fsm_dark.gif" alt="Dark mode" width="300"/>  
+  <img src="img/fsm_dark.gif" alt="Dark mode" width="600"/>  
     <br>Dark mode<br>
 </p>
 <p align="center">
-  <img src="img/fsm_ligth.gif" alt="Ligth mode" width="300"/>  
+  <img src="img/fsm_ligth.gif" alt="Ligth mode" width="600"/>  
     <br>Ligth mode<br>
 </p>
+
+## Exception classes
+<p align="center">
+  <img src="img/fsm_exception_class.png" alt="Ligth mode" />  
+    <br>Exception hierarchy<br>
+</p>
+
+
+
 
 ## License
 
