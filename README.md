@@ -65,13 +65,19 @@ Coming soon....
     print('done')
     print(f)
 ```
+
+
 # pyfsmview 
-## Remote HTTP vFSM viewer on real time 
+## Remote HTTP vFSM viewer in real time 
+pyfsm view is a minimalist http/websocket server to visualize and debug FSM from pyfsm module in real timeto visualize and debug FSM from pyfsm module on real time.
+
 <p align="center">
-  <img src="imh/fsm_dark.gif" alt="Dark mode" width="300"/>
+  <img src="img/fsm_dark.gif" alt="Dark mode" width="300"/>  
+    Dark mode
 </p>
 <p align="center">
-  <img src="imh/fsm_ligth.gif" alt="Ligth mode" width="300"/>
+  <img src="img/fsm_ligth.gif" alt="Ligth mode" width="300"/>  
+    Ligth mode
 </p>
 
 ## License
