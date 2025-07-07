@@ -17,31 +17,9 @@ This module provides classes and functions to create, manage, and analyze finite
 The FSM is repretsented by square matrix form where the matrix is an adjacency matrix that represents the directed graph of the deterministic automata.
 Here, the rows represent the current state and the columns the next state; each element $\delta(i,j)$ represents a transition condition which can be 1 or 0, (True or False).
 
-$$
-\begin{array}{c|@{}l@{}}
-   & \begin{array}{ccccc}
-        & A & B & C & D \\
-     \end{array} \\
-\hline
-\begin{array}{c}
-A \\
-B \\
-C \\
-D \\
-\end{array}
-&
-
-\left(
-\begin{array}{cccc}
-0 & \delta_0 & 0 & 0 \\
-0 & 0 & \delta_1 & 0 \\
-0 & 0 & 0 & \delta_2 \\
-\delta_3 & 0 & 0 & 0 \\
-\end{array}
-\right)
-\end{array}
-$$
-
+<p align="center">
+  <img src="img/matrix_fsm.svg" >
+</p>
 
 ## Installation
 
@@ -81,10 +59,12 @@ Coming soon....
 ```
 # pyfsmview 
 ## Remote HTTP vFSM viewer on real time 
-
-![Dark mode](img/fsm_dark.gif)
-![Ligth mode](img/fsm_ligth.gif)
-
+<p align="center">
+  <img src="imh/fsm_dark.gif" alt="Dark mode" width="300"/>
+</p>
+<p align="center">
+  <img src="imh/fsm_ligth.gif" alt="Ligth mode" width="300"/>
+</p>
 
 ## License
 
