@@ -68,7 +68,7 @@ Coming soon....
 
 
 # pyfsmview 
-## Remote HTTP vFSM viewer in real time 
+## Remote HTTP FSM viewer in real time 
 pyfsm view is a minimalist http/websocket server to visualize and debug FSM from pyfsm module in real timeto visualize and debug FSM from pyfsm module on real time.
 
 <p align="center">
