@@ -44,7 +44,7 @@ To describe correctly FSM in deterministic case, the following conditions must b
     according to the associated transitions $\delta_{i,k},\delta_{i,r},\delta_{i,t},...,\delta_{i,v}$, these transitions must satisfy the condition of being mutually exclusive. 
     That is, only one of them must be true in the s i-th state.
     $$\bigcap^{\infty} \delta_{i,m} = 0$$
-      $$ s := s_{k} | s_{i} \cap \delta_{i,k}$$
+      $$s := s_{k} | s_{i} \cap \delta_{i,k}$$
 1. Transition condition $s_{origin}\to s_{destiny}:t_{condition}$ must be unique. 
 
 ## Dead states detection 
@@ -69,15 +69,15 @@ For dead states detection, please, refer to ```get_allPaths()``` method.
 Sometimes, state machines are correctly coded in theoretical terms. However, when they interact with the physical world, unforeseen conditions may arise. Even if the code is correct, the system can enter a limit cycle that may affect an automated process.
 For example, let's suppose we have implemented an FSM to characterize and measure battery charging curves. Suppose that full charge detection is based on voltage measurement rather than a coulomb-counting gauge. If, for some reason (battery degradation, a fault in the charging system, etc.), the system fails to reach the threshold voltage, it could enter a cycle like charge → verification → reset → charge → verification → reset...
 Since such cycles can be arbitrarily long and vary in nature, two functions have been provided for cycle detection.
+Given cycle detection, one can detet the abnormal behavior and take decisions based on that. This makes the code more robust.
 
-### Closed cycle detection 
+#### Closed cycle detection 
 Detects if exists a closed cycles on state machine.
 Refer to ```detect_closed_cycle()```
 
-### Windowed cycle detection
+#### Windowed cycle detection
 Detects cycles on a window.
 Refer to ```detect_windowed_cycles()```
-
 
 
 ## Usage
