@@ -14,6 +14,34 @@ Module for the management, representation, and analysis of finite state machines
 ## Description
 
 This module provides classes and functions to create, manage, and analyze finite state machines (FSM). It offers tools to represent FSMs, evaluate their structure, and identify important properties such as state accessibility and cycle detection.
+The FSM is repretsented by square matrix form where the matrix is an adjacency matrix that represents the directed graph of the deterministic automata.
+Here, the rows represent the current state and the columns the next state; each element $\delta(i,j)$ represents a transition condition which can be 1 or 0, (True or False).
+
+$$
+\begin{array}{c|@{}l@{}}
+   & \begin{array}{ccccc}
+        & A & B & C & D \\
+     \end{array} \\
+\hline
+\begin{array}{c}
+A \\
+B \\
+C \\
+D \\
+\end{array}
+&
+
+\left(
+\begin{array}{cccc}
+0 & \delta_0 & 0 & 0 \\
+0 & 0 & \delta_1 & 0 \\
+0 & 0 & 0 & \delta_2 \\
+\delta_3 & 0 & 0 & 0 \\
+\end{array}
+\right)
+\end{array}
+$$
+
 
 ## Installation
 
