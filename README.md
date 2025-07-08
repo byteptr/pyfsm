@@ -173,6 +173,7 @@ Invalid syntax exceptions are triggered when we are defining FSM before executin
 
 - Runtime exceptions:  
 Runtime exceptions may occur when FSM definition is syntactically correct but some rules are violated at executing time.
+    * FSMTransitionEvalError: This exeception raise when there is an error evaluating transition conditions.
     * FSMNondisjoinctTransitions : This error may occur when in an executing flow there are bifurcations and two or more transition conditions are true.
     For example, let us suppose the following FSM: 
 
@@ -190,8 +191,7 @@ And t1 through t3 are simultaneously true.
   <img src="img/bifurcation.png" alt="Ligth mode" />  
     <br>t1, t2 and t3 are True at same time (non disjoint transitions)<br>
 </p>
-This raises FSMNondisjoinctTransitions  
-    * FSMTransitionEvalError: This exeception raise when there is an error evaluating transition conditions.
+This raises FSMNondisjoinctTransitions
 
 # pyfsmview 
 ## Remote HTTP FSM viewer in real time 
