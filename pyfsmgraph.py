@@ -349,11 +349,8 @@ if __name__ == "__main__":
 
     print(f'Entry point {f.entry_point}')
     print(f'State {f.state}')
-    
-    a = 0
 
     dg = dynamic_graph(f)
-    f.state = 0
 
     print(dg.node_transitions)
     print(dg.states)

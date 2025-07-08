@@ -192,14 +192,14 @@ Runtime exceptions may occur when FSM definition is syntactically correct but so
         ```
 And t1 through t3 are simultaneously true.
 <p align="center">
-  <img src="img/bifurcation.png" alt="Ligth mode" />  
+  <img src="img/bifurcation.png" />  
     <br>t1, t2 and t3 are True at same time (non disjoint transitions)<br>
 </p>
 This raises FSMNondisjoinctTransitions
 
 # pyfsmview 
 ## Remote HTTP FSM viewer in real time 
-pyfsm view is a minimalist http/websocket server to visualize and debug FSM from pyfsm module in real timeto visualize and debug FSM from pyfsm module on real time.
+pyfsmview is a minimalist http/websocket server to visualize and debug FSM from pyfsm module in real-time to visualize and debug FSM from pyfsm module on real time.
 
 <p align="center">
   <img src="img/fsm_dark.gif" alt="Dark mode" width="600"/>  
@@ -210,6 +210,65 @@ pyfsm view is a minimalist http/websocket server to visualize and debug FSM from
     <br>Ligth mode<br>
 </p>
 
+### Minimal Example: 
+
+```python
+import asyncio
+from pyfsm import fsm
+from pyfsmview import pyfsm_http_visualizer
+
+if __name__ == '__main__': 
+
+    # FSM Overloading
+    class test_fsm(fsm):
+        def __init__(self, history_len=10) -> None:
+            super().__init__(history_len)
+            self.a = 0
+
+        def tcondition(self)->bool:
+            return True #(self.a % 10) == 0 
+
+        def step(self) -> None:
+            self.a += 1
+            self.a %= 2
+            super().step()
+
+        # Custom co-routine (optional)
+        async def printstate(self)->None:
+            print("Prinstate running...")
+            while True:
+                print(f'{self.a} {self.state}')
+                await asyncio.sleep(0.1)
+
+    f = test_fsm()
+
+    f.add_transition('A => B : t0')
+    f.add_transition('B => C : t1')
+    f.add_transition('C => D : t2')
+    f.add_transition('D => A : t3')
+
+    f.add_condition('t0', f.tcondition)
+    f.add_condition('t1', f.tcondition)
+    f.add_condition('t2', f.tcondition)
+    f.add_condition('t3', f.tcondition)
+
+    f.compile()
+
+    # Create http visualizer instance in dark mode 
+    service = pyfsm_http_visualizer(mode = 'dark')
+    service.bind(f) # binds FSM to visualizer
+    service.tasks.append(f.printstate) # Adds additional coroutine if you want
+    
+    service.fsmbind.ev_loop_flag.set() # Event loop flag must be set
+    # Runs until Ctrl-C is pressed 
+    try: 
+        asyncio.run(service.start()) # Classic asyncio running coroutines
+    except KeyboardInterrupt: 
+        service.fsmbind.ev_running.clear() # Signal stop all 
+        print("Ctrl-C detected. exit()")
+
+```
+Open a web browser and connect to url: ```localhost:8000```
 
 ## Installation
 
