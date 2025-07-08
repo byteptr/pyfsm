@@ -181,10 +181,14 @@ Runtime exceptions may occur when FSM definition is syntactically correct but so
                 f = fsm()
                 f.add_transition('A => B : t0')
                 f.add_transition('B => C : t1')
-                f.add_transition('B -> D : t2') 
-                f.add_transition('B -> E : t3')
+                f.add_transition('B => D : t2') 
+                f.add_transition('B => E : t3')
+                ...
+                f.compile()
                 ...
 
+                    f.step()
+                ... 
         ```
 And t1 through t3 are simultaneously true.
 <p align="center">
