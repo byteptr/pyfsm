@@ -32,6 +32,17 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
+__author__    = "Raul ALvarez"
+__email__     = "ralvarezb78@gmail.com"
+__version__   = "1.0.0"
+__license__   = "MIT"
+__date__      = "2025-06-15"
+
+import logging
+logger = logging.getLogger(__name__)
+if not logger.hasHandlers():
+    logger.addHandler(logging.NullHandler())
+
 import numpy as np
 from dataclasses import dataclass, field
 from graphviz import Digraph
@@ -40,7 +51,7 @@ from pyfsm import fsm
 from typing import Optional
 from typing import Dict
 
-# Funciones de configuración por defecto
+# Default config attributes
 
 def _gv_init_node_dark_properties():
     return {"shape": "doublecircle", 
@@ -338,11 +349,8 @@ if __name__ == "__main__":
 
     print(f'Entry point {f.entry_point}')
     print(f'State {f.state}')
-    
-    a = 0
 
     dg = dynamic_graph(f)
-    f.state = 0
 
     print(dg.node_transitions)
     print(dg.states)

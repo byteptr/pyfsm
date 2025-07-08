@@ -32,32 +32,61 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 
-from dataclasses import dataclass, field
-from graphviz import Digraph
-import asyncio
-import websockets
-from websockets.server import WebSocketServerProtocol
-from aiohttp import web
-import aiofiles 
-from typing import Callable
-from typing import Set
-from typing import Awaitable
-from typing import Optional
-from typing import Any
-from typing import List
-from queue import Queue 
-from pyfsm import fsm
-from pyfsm import fsm_bindings
-from pyfsmgraph import dynamic_graph
-import time 
-import json 
+__author__    = "Raul ALvarez"
+__email__     = "ralvarezb78@gmail.com"
+__version__   = "1.0.0"
+__license__   = "MIT"
+__date__      = "2025-06-15"
 
+import logging
 
+logger = logging.getLogger(__name__)
+if not logger.hasHandlers():
+    logger.addHandler(logging.NullHandler())
+try: 
+    from dataclasses import dataclass, field
+    from graphviz import Digraph
+    import asyncio
+    import websockets
+    from websockets.server import WebSocketServerProtocol
+    from aiohttp import web
+    import aiofiles 
+    from typing import Callable
+    from typing import Set
+    from typing import Awaitable
+    from typing import Optional
+    from typing import Any
+    from typing import List
+    from queue import Queue 
+    from pyfsm import fsm
+    from pyfsm import fsm_bindings
+    from pyfsmgraph import dynamic_graph
+    import time 
+    import json 
+except Exception as e: 
+    logger.error(e)
+    raise e
 
 class pyfsm_http_visualizer: 
     def __init__(self, http_port:int=8000, ws_port:int=8765, ws_host : str = 'localhost',
-                 html_template : str ='./template/index.html', mode : str = 'ligth'):
+                 html_template : str ='./template/index.html', mode : str = 'ligth')->None:
+        """ Constructor: 
+        
+        :param http_port: Port of htttp server
+        :type http_port: int 
+        
+        :param ws_port: Websocket port 
+        :type ws_port: int 
 
+        :param ws_host: Host of websocket, 'localhost' for incoming local connections, '0.0.0.0' for external.
+        :type ws_host: str 
+
+        :param mode: Color theme 'ligth' or 'dark'
+        :type mode: str
+
+        :return: None
+        :rtype: None
+        """
         self.http_port = http_port
         self.ws_port = ws_port
         self.ws_host = ws_host
@@ -73,13 +102,28 @@ class pyfsm_http_visualizer:
         self._mode : str = mode 
 
     def bind(self, f: fsm)->None:
+        """ Binds http visualizer to Finite State machine 
+        :param f: Finite State Machine class from pyfsm or inherited class 
+        :type f: fsm class
+
+        :return: None
+        :rtype: None
+        """
         self.fsm_instance = f
         self.fsm_instance.binding = self.fsmbind
         self.dgraph = dynamic_graph(f, mode = self._mode)
 
     
     def _run(self): 
-        print("_run() method started...")
+        """
+        Internal method called by run_fsm(): Runs FSM inside a thread on two possible fashions:
+        - Free running with sleep 
+        - Step by step throug event
+
+        :return: None 
+        :rtype: None 
+        """
+        logger.info("_run() method started...")
         # main running loop: while ev_running is set. 
         while self.fsmbind.ev_running.is_set():
             if self.fsmbind.ev_async_flag.is_set: 
@@ -100,7 +144,16 @@ class pyfsm_http_visualizer:
 
 
     async def run_fsm(self, run_method_async: bool = True):
-        print("starting run_fsm()")
+        """
+            Runs FSM
+
+            :param run_method_async: If true, FSM is running on free mode with sleep interval. 
+            Otherwise runs step by step through event self.fsmbind.ev_loop_flag.
+            :type run_method_async: bool
+
+            :return: Coroutine
+            :rtype: class coroutine
+        """
         if run_method_async: 
             self.fsmbind.ev_async_flag.set()
         else:
@@ -135,7 +188,7 @@ class pyfsm_http_visualizer:
 
     async def ws_handle(self, websocket):
         self.clients.add(websocket)
-        # print("Client connected.")
+        logger.info("Client connected.")
         if self._mode == 'ligth': 
             bg = self.dgraph.properties.bgcolor_ligth['bgcolor']
             tcol = self.dgraph.properties.color_ligth['color']
@@ -148,15 +201,15 @@ class pyfsm_http_visualizer:
                                         )
                              )
         try:
-            async for message in websocket:
-                print(f"Message from client {msg}")
+            async for msg in websocket:
+                logger.info(f"Message from client {msg}")
                 await asyncio.sleep(0)
         except websockets.exceptions.ConnectionClosedOK:
-            pass
+            logger.error(websockets.exceptions.ConnectionClosedOK)
         except websockets.exceptions.ConnectionClosedError:
-            pass
+            logger.error(websockets.exceptions.ConnectionClosedError)
         except Exception as e:
-            pass
+            logger.error(e)
         finally:
             self.clients.remove(websocket)
 
@@ -174,7 +227,7 @@ class pyfsm_http_visualizer:
             try: 
                await asyncio.Future() 
             except asyncio.exceptions.CancelledError: 
-                print("\nWebsockets terminate.")
+                logger.error(asyncio.exceptions.CancelledError)
                 self.fsmbind.ev_running.clear()
 
     async def transmit(self):
@@ -192,9 +245,8 @@ class pyfsm_http_visualizer:
             await asyncio.sleep(0.1)
 
     async def start(self):
-        print("Starting all tasks")
+        logger.info("Starting all tasks")
         
-        print("starting run_fsm()")
         run_method_async=True 
         if run_method_async: 
             self.fsmbind.ev_async_flag.set()
@@ -211,26 +263,27 @@ class pyfsm_http_visualizer:
             *(fn() for fn in self.tasks)
         )
 
-class test_fsm(fsm):
-    def __init__(self, history_len=10) -> None:
-        super().__init__(history_len)
-        self.a = 0
-
-    def tcondition(self)->bool:
-        return True #(self.a % 10) == 0 
-
-    def step(self) -> None:
-        self.a += 1
-        self.a %= 2
-        super().step()
-        
-    async def printstate(self)->None:
-        print("Prinstate running...")
-        while True:
-            print(f'{self.a} {self.state}')
-            await asyncio.sleep(0.1)
-
 if __name__ == '__main__': 
+
+    class test_fsm(fsm):
+        def __init__(self, history_len=10) -> None:
+            super().__init__(history_len)
+            self.a = 0
+
+        def tcondition(self)->bool:
+            return True #(self.a % 10) == 0 
+
+        def step(self) -> None:
+            self.a += 1
+            self.a %= 2
+            super().step()
+            
+        async def printstate(self)->None:
+            print("Prinstate running...")
+            while True:
+                print(f'{self.a} {self.state}')
+                await asyncio.sleep(0.1)
+
     f = test_fsm()
 
     f.add_transition('A => B : t0')
