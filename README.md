@@ -191,6 +191,7 @@ And t1 through t3 are simultaneously true.
     <br>t1, t2 and t3 are True at same time (non disjoint transitions)<br>
 </p>
 This raises FSMNondisjoinctTransitions  
+
     * FSMTransitionEvalError: This exeception raise when there is an error evaluating transition conditions.
 
 # pyfsmview 
