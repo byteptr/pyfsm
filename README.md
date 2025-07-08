@@ -42,14 +42,14 @@ To describe correctly FSM in deterministic case, the following conditions must b
 1. A transition condition from state $s_i$ to $s_j$ is unique
 1. Given a state $s_i$, whose outgoing flow branches into several paths toward the possible states $s_{k},s_{r},s_{t},...,s_{v}$
     according to the associated transitions $\delta_{i,k},\delta_{i,r},\delta_{i,t},...,\delta_{i,v}$, these transitions must satisfy the condition of being mutually exclusive. 
-    That is, only one of them must be true in the s i-th state.
-    $$\bigcap^{\infty} \delta_{i,m} = 0$$
-      $$s := s_{k} | s_{i} \cap \delta_{i,k}$$
+    That is, only one of them must be true in the s i-th state.  
+    $$\bigcap^{\infty} \delta_{i,m} = 0$$  
+      $$s := s_{k} | s_{i} \cap \delta_{i,k}$$  
 1. Transition condition $s_{origin}\to s_{destiny}:t_{condition}$ must be unique. 
 
 ## Dead states detection 
 Dead states are non-reachable states or states described on FSM that are not reachable because all entries on a given column related to this state are zero.  
-To ensure good FSM description a static check for dead states can be performed throug accesibility matrix $R$.
+To ensure good FSM description a static check for dead states can be performed through accesibility matrix $R$.
 
 
 The accessibility matrix (also known as the reachability matrix) is a matrix that shows which nodes in a graph can reach which other nodes, either directly or through a path of one or more steps.
@@ -81,7 +81,7 @@ Refer to ```detect_windowed_cycles()```
 
 
 ## Usage
-```
+```python
     def test_fcn():
         return True
 
@@ -115,6 +115,83 @@ Refer to ```detect_windowed_cycles()```
   <img src="img/fsm_exception_class.png" alt="Ligth mode" />  
     <br>Exception hierarchy<br>
 </p>
+
+There are two main types of exceptions:
+- Invalid Syntax exceptions  
+Invalid syntax exceptions are triggered when we are defining FSM before executing it if the user violates the rules of FSM definition. The Syntax exceptions are:
+    - Redundant condition : When one transition is use on more than one state transition condition. 
+        ```python
+                f = fsm()
+                f.add_transition('A => B : t0') # OK
+                f.add_transition('B => C : t1') # OK
+                f.add_transition('C => D : t2') # OK
+                f.add_transition('D => A : t3') # OK
+                f.add_transition('D => D : t2') # ERROR : Already defined transition for C = > D
+        ```
+    - Inconsistent transition : When the symbol used to describe  a transition is not the same.  
+        You can express transitions using 3 types of symbols: '->', '=>' and ',' (comma). Once one is chosen, it cannot be changed.  
+
+        For example: 
+        * This is valid:  
+
+        ```python
+                f = fsm()
+                f.add_transition('A => B : t0')
+                f.add_transition('B => C : t1')
+                f.add_transition('C => A : t3')
+                f.add_transition('D => A : t4')
+                f.add_transition('D => D : t2')
+        ```
+        * This is also valid: 
+        ```python 
+                f = fsm()
+                f.add_transition('A -> B : t0')
+                f.add_transition('B -> C : t1')
+                f.add_transition('C -> A : t3')
+                f.add_transition('D -> A : t4')
+                f.add_transition('D -> D : t2')
+
+        ``` 
+        * This too: 
+        ```python 
+                f = fsm()
+                f.add_transition('A,B : t0')
+                f.add_transition('B,C : t1')
+                f.add_transition('C,A : t3')
+                f.add_transition('D,A : t4')
+                f.add_transition('D,D : t2')
+        ``` 
+        * But this is not valid:
+        ```python
+                f = fsm()
+                f.add_transition('A => B : t0')
+                f.add_transition('B => C : t1')
+                f.add_transition('C -> A : t3') # Transition symbol syntax inconsistency
+                f.add_transition('D -> A : t4')
+
+        ```
+
+- Runtime exceptions:  
+Runtime exceptions may occur when FSM definition is syntactically correct but some rules are violated at executing time.
+    * FSMNondisjoinctTransitions : This error may occur when in an executing flow there are bifurcations and two or more transition conditions are true.
+    For example, let us suppose the following FSM: 
+
+        ```python
+                f = fsm()
+                f.add_transition('A => B : t0')
+                f.add_transition('B => C : t1')
+                f.add_transition('B -> D : t2') 
+                f.add_transition('B -> E : t3')
+                ...
+
+        ```
+And t1 through t3 are simultaneously true.
+<p align="center">
+  <img src="img/bifurcation.png" alt="Ligth mode" />  
+    <br>t1, t2 and t3 are True at same time (non disjoint transitions)<br>
+</p>
+This raises FSMNondisjoinctTransitions
+    * FSMTransitionEvalError: Tis exeception raise when there is an error evaluating transition conditions.
 
 # pyfsmview 
 ## Remote HTTP FSM viewer in real time 
