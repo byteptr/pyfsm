@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>pyfsm &#8212; pyfsm 1.0.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=12dfc556" />
+    <script src="_static/documentation_options.js?v=8d563738"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="pyfsm package" href="pyfsm.html" />
+    <link rel="prev" title="pyfsm documentation" href="index.html" />
+   
+  <link rel="stylesheet" href="_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="pyfsm">
+<h1>pyfsm<a class="headerlink" href="#pyfsm" title="Link to this heading">¶</a></h1>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="pyfsm.html">pyfsm package</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pyfsm.html#submodules">Submodules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pyfsm.html#module-pyfsm.pyfsm">pyfsm.pyfsm module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsm.FSMException"><code class="docutils literal notranslate"><span class="pre">FSMException</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsm.FSMInconsistentTransition"><code class="docutils literal notranslate"><span class="pre">FSMInconsistentTransition</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsm.FSMInvalidSyntax"><code class="docutils literal notranslate"><span class="pre">FSMInvalidSyntax</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsm.FSMNondisjoinctTransitions"><code class="docutils literal notranslate"><span class="pre">FSMNondisjoinctTransitions</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsm.FSMRedundantCondition"><code class="docutils literal notranslate"><span class="pre">FSMRedundantCondition</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsm.FSMRuntimeException"><code class="docutils literal notranslate"><span class="pre">FSMRuntimeException</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsm.FSMSysMgs"><code class="docutils literal notranslate"><span class="pre">FSMSysMgs</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsm.FSMSysMgs.debug_machine_transition"><code class="docutils literal notranslate"><span class="pre">FSMSysMgs.debug_machine_transition()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsm.FSMSysMgs.error_expresion_match"><code class="docutils literal notranslate"><span class="pre">FSMSysMgs.error_expresion_match()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsm.FSMSysMgs.error_inconsistent_transition"><code class="docutils literal notranslate"><span class="pre">FSMSysMgs.error_inconsistent_transition()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsm.FSMSysMgs.error_non_disjoint_transitions"><code class="docutils literal notranslate"><span class="pre">FSMSysMgs.error_non_disjoint_transitions()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsm.FSMSysMgs.error_redundant_condition"><code class="docutils literal notranslate"><span class="pre">FSMSysMgs.error_redundant_condition()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsm.FSMSysMgs.error_transition_eval_error"><code class="docutils literal notranslate"><span class="pre">FSMSysMgs.error_transition_eval_error()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsm.FSMSysMgs.error_undefined_transition"><code class="docutils literal notranslate"><span class="pre">FSMSysMgs.error_undefined_transition()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsm.FSMSysMgs.warning_dead_states"><code class="docutils literal notranslate"><span class="pre">FSMSysMgs.warning_dead_states()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsm.FSMSysMgs.warning_unused_transitions"><code class="docutils literal notranslate"><span class="pre">FSMSysMgs.warning_unused_transitions()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsm.FSMTransitionEvalError"><code class="docutils literal notranslate"><span class="pre">FSMTransitionEvalError</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsm.FSMUndefinedTransition"><code class="docutils literal notranslate"><span class="pre">FSMUndefinedTransition</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsm.FSMUnknownException"><code class="docutils literal notranslate"><span class="pre">FSMUnknownException</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsm.custom_formatwarning"><code class="docutils literal notranslate"><span class="pre">custom_formatwarning()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsm.fsm"><code class="docutils literal notranslate"><span class="pre">fsm</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsm.fsm.add_condition"><code class="docutils literal notranslate"><span class="pre">fsm.add_condition()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsm.fsm.add_transition"><code class="docutils literal notranslate"><span class="pre">fsm.add_transition()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsm.fsm.compile"><code class="docutils literal notranslate"><span class="pre">fsm.compile()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsm.fsm.del_condition"><code class="docutils literal notranslate"><span class="pre">fsm.del_condition()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsm.fsm.detect_closed_cycle"><code class="docutils literal notranslate"><span class="pre">fsm.detect_closed_cycle()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsm.fsm.detect_windowed_cycles"><code class="docutils literal notranslate"><span class="pre">fsm.detect_windowed_cycles()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsm.fsm.get_allPaths"><code class="docutils literal notranslate"><span class="pre">fsm.get_allPaths()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsm.fsm.printable_history"><code class="docutils literal notranslate"><span class="pre">fsm.printable_history()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsm.fsm.printable_matrix"><code class="docutils literal notranslate"><span class="pre">fsm.printable_matrix()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsm.fsm.reset"><code class="docutils literal notranslate"><span class="pre">fsm.reset()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsm.fsm.set_initialState"><code class="docutils literal notranslate"><span class="pre">fsm.set_initialState()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsm.fsm.step"><code class="docutils literal notranslate"><span class="pre">fsm.step()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsm.fsm.verify_deadStates"><code class="docutils literal notranslate"><span class="pre">fsm.verify_deadStates()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsm.fsm_bindings"><code class="docutils literal notranslate"><span class="pre">fsm_bindings</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsm.fsm_bindings.CMD_EVENT_TRIGGER"><code class="docutils literal notranslate"><span class="pre">fsm_bindings.CMD_EVENT_TRIGGER</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsm.fsm_bindings.CMD_GET_SLEEP"><code class="docutils literal notranslate"><span class="pre">fsm_bindings.CMD_GET_SLEEP</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsm.fsm_bindings.CMD_GET_TRIGGER"><code class="docutils literal notranslate"><span class="pre">fsm_bindings.CMD_GET_TRIGGER</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsm.fsm_bindings.CMD_QUIT"><code class="docutils literal notranslate"><span class="pre">fsm_bindings.CMD_QUIT</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsm.fsm_bindings.CMD_RESET"><code class="docutils literal notranslate"><span class="pre">fsm_bindings.CMD_RESET</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsm.fsm_bindings.CMD_SET_SLEEP"><code class="docutils literal notranslate"><span class="pre">fsm_bindings.CMD_SET_SLEEP</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsm.fsm_bindings.CMD_START"><code class="docutils literal notranslate"><span class="pre">fsm_bindings.CMD_START</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsm.fsm_bindings.CMD_STEP"><code class="docutils literal notranslate"><span class="pre">fsm_bindings.CMD_STEP</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsm.fsm_bindings.CMD_STOP"><code class="docutils literal notranslate"><span class="pre">fsm_bindings.CMD_STOP</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsm.fsm_bindings.CMD_TIME_TRIGGER"><code class="docutils literal notranslate"><span class="pre">fsm_bindings.CMD_TIME_TRIGGER</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsm.fsm_bindings.MSG_TRIGGER_EVENT"><code class="docutils literal notranslate"><span class="pre">fsm_bindings.MSG_TRIGGER_EVENT</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsm.fsm_bindings.MSG_TRIGGER_TIME"><code class="docutils literal notranslate"><span class="pre">fsm_bindings.MSG_TRIGGER_TIME</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsm.fsm_bindings.ev_async_flag"><code class="docutils literal notranslate"><span class="pre">fsm_bindings.ev_async_flag</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsm.fsm_bindings.ev_loop_flag"><code class="docutils literal notranslate"><span class="pre">fsm_bindings.ev_loop_flag</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsm.fsm_bindings.ev_running"><code class="docutils literal notranslate"><span class="pre">fsm_bindings.ev_running</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsm.fsm_bindings.q_input"><code class="docutils literal notranslate"><span class="pre">fsm_bindings.q_input</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsm.fsm_bindings.q_output"><code class="docutils literal notranslate"><span class="pre">fsm_bindings.q_output</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsm.fsm_bindings.sleep_async"><code class="docutils literal notranslate"><span class="pre">fsm_bindings.sleep_async</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsm.fsm_bindings.sleep_time"><code class="docutils literal notranslate"><span class="pre">fsm_bindings.sleep_time</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pyfsm.html#module-pyfsm.pyfsmgraph">pyfsm.pyfsmgraph module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsmgraph.dynamic_graph"><code class="docutils literal notranslate"><span class="pre">dynamic_graph</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsmgraph.dynamic_graph.add_custom_edge_properties"><code class="docutils literal notranslate"><span class="pre">dynamic_graph.add_custom_edge_properties()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsmgraph.dynamic_graph.add_custom_node_properties"><code class="docutils literal notranslate"><span class="pre">dynamic_graph.add_custom_node_properties()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsmgraph.dynamic_graph.build_svg"><code class="docutils literal notranslate"><span class="pre">dynamic_graph.build_svg()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsmgraph.dynamic_graph.get_custom_edge_properties"><code class="docutils literal notranslate"><span class="pre">dynamic_graph.get_custom_edge_properties()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsmgraph.dynamic_graph.get_custom_node_properties"><code class="docutils literal notranslate"><span class="pre">dynamic_graph.get_custom_node_properties()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsmgraph.gvproperties"><code class="docutils literal notranslate"><span class="pre">gvproperties</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsmgraph.gvproperties.active_edge_dark_properties"><code class="docutils literal notranslate"><span class="pre">gvproperties.active_edge_dark_properties</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsmgraph.gvproperties.active_edge_ligth_properties"><code class="docutils literal notranslate"><span class="pre">gvproperties.active_edge_ligth_properties</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsmgraph.gvproperties.active_init_dark_properties"><code class="docutils literal notranslate"><span class="pre">gvproperties.active_init_dark_properties</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsmgraph.gvproperties.active_init_ligth_properties"><code class="docutils literal notranslate"><span class="pre">gvproperties.active_init_ligth_properties</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsmgraph.gvproperties.active_node_dark_properties"><code class="docutils literal notranslate"><span class="pre">gvproperties.active_node_dark_properties</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsmgraph.gvproperties.active_node_light_properties"><code class="docutils literal notranslate"><span class="pre">gvproperties.active_node_light_properties</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsmgraph.gvproperties.bgcolor_dark"><code class="docutils literal notranslate"><span class="pre">gvproperties.bgcolor_dark</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsmgraph.gvproperties.bgcolor_ligth"><code class="docutils literal notranslate"><span class="pre">gvproperties.bgcolor_ligth</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsmgraph.gvproperties.color_dark"><code class="docutils literal notranslate"><span class="pre">gvproperties.color_dark</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsmgraph.gvproperties.color_ligth"><code class="docutils literal notranslate"><span class="pre">gvproperties.color_ligth</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsmgraph.gvproperties.default_edge_dark_properties"><code class="docutils literal notranslate"><span class="pre">gvproperties.default_edge_dark_properties</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsmgraph.gvproperties.default_edge_ligth_properties"><code class="docutils literal notranslate"><span class="pre">gvproperties.default_edge_ligth_properties</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsmgraph.gvproperties.default_init_node_dark_properties"><code class="docutils literal notranslate"><span class="pre">gvproperties.default_init_node_dark_properties</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsmgraph.gvproperties.default_init_node_light_properties"><code class="docutils literal notranslate"><span class="pre">gvproperties.default_init_node_light_properties</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsmgraph.gvproperties.default_node_dark_properties"><code class="docutils literal notranslate"><span class="pre">gvproperties.default_node_dark_properties</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsmgraph.gvproperties.default_node_light_properties"><code class="docutils literal notranslate"><span class="pre">gvproperties.default_node_light_properties</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsmgraph.gvproperties.mode"><code class="docutils literal notranslate"><span class="pre">gvproperties.mode</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pyfsm.html#module-pyfsm.pyfsmview">pyfsm.pyfsmview module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsmview.pyfsm_http_visualizer"><code class="docutils literal notranslate"><span class="pre">pyfsm_http_visualizer</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsmview.pyfsm_http_visualizer.bind"><code class="docutils literal notranslate"><span class="pre">pyfsm_http_visualizer.bind()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsmview.pyfsm_http_visualizer.http_cleanup"><code class="docutils literal notranslate"><span class="pre">pyfsm_http_visualizer.http_cleanup()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsmview.pyfsm_http_visualizer.http_handle"><code class="docutils literal notranslate"><span class="pre">pyfsm_http_visualizer.http_handle()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsmview.pyfsm_http_visualizer.http_startup"><code class="docutils literal notranslate"><span class="pre">pyfsm_http_visualizer.http_startup()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsmview.pyfsm_http_visualizer.run_fsm"><code class="docutils literal notranslate"><span class="pre">pyfsm_http_visualizer.run_fsm()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsmview.pyfsm_http_visualizer.start"><code class="docutils literal notranslate"><span class="pre">pyfsm_http_visualizer.start()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsmview.pyfsm_http_visualizer.start_http_server"><code class="docutils literal notranslate"><span class="pre">pyfsm_http_visualizer.start_http_server()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsmview.pyfsm_http_visualizer.start_websocket"><code class="docutils literal notranslate"><span class="pre">pyfsm_http_visualizer.start_websocket()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsmview.pyfsm_http_visualizer.transmit"><code class="docutils literal notranslate"><span class="pre">pyfsm_http_visualizer.transmit()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsmview.pyfsm_http_visualizer.ws_broadcast"><code class="docutils literal notranslate"><span class="pre">pyfsm_http_visualizer.ws_broadcast()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="pyfsm.html#pyfsm.pyfsmview.pyfsm_http_visualizer.ws_handle"><code class="docutils literal notranslate"><span class="pre">pyfsm_http_visualizer.ws_handle()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="pyfsm.html#module-pyfsm">Module contents</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="index.html">pyfsm</a></h1>
+
+
+
+
+
+
+
+
+<h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">pyfsm</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pyfsm.html">pyfsm package</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="pyfsm.html">pyfsm package</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">pyfsm documentation</a></li>
+      <li>Next: <a href="pyfsm.html" title="next chapter">pyfsm package</a></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2025, Raul Alvarez.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.2.3</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="_sources/modules.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
