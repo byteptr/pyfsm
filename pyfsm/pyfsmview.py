@@ -44,6 +44,7 @@ logger = logging.getLogger(__name__)
 if not logger.hasHandlers():
     logger.addHandler(logging.NullHandler())
 try: 
+    import os 
     from dataclasses import dataclass, field
     from graphviz import Digraph
     import asyncio
@@ -60,7 +61,7 @@ try:
     from queue import Queue 
     from pyfsm import fsm
     from pyfsm import fsm_bindings
-    from pyfsm.pyfsmgraph import dynamic_graph
+    from pyfsmgraph import dynamic_graph
     import time 
     import json 
 except Exception as e: 
@@ -180,6 +181,13 @@ class pyfsm_http_visualizer:
     async def start_http_server(self):
         self.app = web.Application()
         self.app.router.add_get('/', self.http_handle)
+        css_path = os.path.abspath('./template/css')
+        js_path = os.path.abspath('./template/js')
+        print(css_path)
+        print(js_path)
+        self.app.router.add_static('/css/', path=css_path, name='css')
+        self.app.router.add_static('/js/', path=js_path, name='js')        
+
         self.app.on_startup.append(self.http_startup)
         self.app.on_cleanup.append(self.http_cleanup)
         # Usar AppRunner para arrancar el servidor
@@ -239,11 +247,19 @@ class pyfsm_http_visualizer:
                 _ = self.fsmbind.q_output.get()
                 if self.dgraph is not None:
                     msg = self.dgraph.build_svg()
+                    dd = {
+                        'svg' : msg
+                    }
+                    # esto hay que mejorar
+                    if not self.fsmbind.q_input.empty(): 
+                        term_msg = ''
+                        while not self.fsmbind.q_input.empty():
+                            term_msg += self.fsmbind.q_input.get() 
+                            await asyncio.sleep(0)
+                        dd['term'] = term_msg 
                     await self\
                     .ws_broadcast(\
-                    json.dumps({'svg': msg,
-                                }
-                        )
+                    json.dumps(dd)
                     )
             await asyncio.sleep(0.1)
 
@@ -285,6 +301,8 @@ if __name__ == '__main__':
             print("Prinstate running...")
             while True:
                 print(f'{self.a} {self.state}')
+                self.binding.q_input.put(f'{self.a} {self.state}')
+
                 await asyncio.sleep(0.1)
 
     f = test_fsm()
