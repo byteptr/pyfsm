@@ -2,27 +2,50 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>FSM remote monitot</title>
+  <title>FSM Remote Monitor</title>
+  <link rel="stylesheet" href="css/xterm.css"> <!-- Asegúrate de tener este archivo -->
+  <style>
+    body {
+      font-family: Consolas, monospace;
+      margin: 0;
+      padding: 0;
+    }
+
+    h1 {
+      text-align: center;
+    }
+
+    /* Contenedor del SVG con altura fija y scroll si es necesario */
+    #svg-container {
+      text-align: center;
+      padding: 1em;
+      height: 400px;
+      overflow: auto;
+      border-bottom: 2px solid #ccc;
+    }
+
+    #svg-container svg {
+      display: inline-block;
+      width: 75%;
+      height: auto;
+    }
+
+    /* Terminal debajo del SVG */
+    #terminal {
+      height: 50%;
+      width: 100%;
+    }
+  </style>
 </head>
 <body>
-  <h1 style="font-family: Consolas; text-align: center;">FSM remote monitor</h1>
-     <style>
-      /* Only for svg-container */
-      #svg-container {
-        text-align: center;
-        padding: 1em;
-      }
-
-      #svg-container svg {
-        display: inline-block;
-        width: 75%;
-        height: auto;
-      }
-    </style>
+  <h1>FSM Remote Monitor</h1>
 
   <div id="svg-container"></div>
+  <div id="terminal"></div>
 
+  <script src="js/xterm.js"></script> <!-- Asegúrate de tener este archivo -->
   <script>
+    // WebSocket logic
     const socket = new WebSocket("ws://localhost:8765");
 
     socket.onmessage = (event) => {
@@ -37,6 +60,12 @@
               styleTag.innerHTML = dct.style;
               document.head.appendChild(styleTag);
             }
+            if (dct.hasOwnProperty("term")) {
+                let str = dct.term 
+                let result = str.replace(/\s+$/, "");                
+                term.write(result + '\r\n');
+            }
+
         } catch(e) {
             const svgContainer = document.getElementById("svg-container");
             svgContainer.innerHTML = event.data;
@@ -50,7 +79,18 @@
     socket.onerror = (error) => {
       console.error("WebSocket error:", error);
     };
+
+    // Terminal logic
+    const term = new Terminal({
+      cols: 80,
+      rows: 20,
+      theme: {
+        background: "#1e1e1e",
+        foreground: "#ffffff"
+      }
+    });
+    term.open(document.getElementById('terminal'));
+    term.write('> Terminal conectada.\r\n');
   </script>
 </body>
 </html>
-
