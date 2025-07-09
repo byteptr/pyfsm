@@ -38,6 +38,7 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
 """
 
 __author__    = "Raul ALvarez"
@@ -231,15 +232,13 @@ class fsm_bindings:
 
 class fsm:
     """
-    Represents a finite state machine (FSM).
-
-    This class allows you to define states and transitions of an FSM,
+    Represents a finite state machine (FSM). This class allows you to define states and transitions of an FSM,
     as well as retrieve basic information about its structure.
 
     :ivar history_len: Array length of past states history, in order to detect unintended loops.
-    :ivar parse_state : Regex expression to parse state machines. 
+    :ivar parse_state: Regex expression to parse state machines. 
     :ivar tmatrix: Matrix form of state machine.
-    :ivar machine_transitions : list containing defined transitions.
+    :ivar machine_transitions: list containing defined transitions.
     :ivar true_transitions: vector containing transition conditions that are True
     :ivar true_transitions_name: vector containing names of transition conditions that are True for debug purposes
     :ivar entry-point: Initial state. 
@@ -253,15 +252,18 @@ class fsm:
     :ivar check_disjoint: If True check for disjoint transitions on defined state, if not, throws an error FSMNondisjoinctTransitions
     :ivar warnings: If true, prints the warnings.
     :ivar debug: If true prints debug messages.
+
     """
 
     def __init__(self, history_len = 10) -> None:
         """
         Class constructor
+
         :param history_len: Length of vector containing the present and past states.
         :type history_len: int 
         :return: None
         :rtype: None
+
         """
         self.parse_state = \
             re.compile(r'^\s*(?P<origin>\w+)\s*(?P<tsymbol>\-\>|\s*,\s*|=>)\s*'+\
@@ -288,8 +290,10 @@ class fsm:
     def reset(self)->None:
         """
         Resets the finite state machine.
+
         :return: None
         :rtype: None
+
         """
         self.true_transitions.clear() 
         self.state_history = deque([None]*self.history_len, maxlen = self.history_len) 
@@ -301,9 +305,11 @@ class fsm:
         """
         Add state transition or define a state machine <state_0> <transition_symbol> <state_1> : <transition_identifier>
         Where: 
+
             state_0 : Is the name of present state 
             transition_symbol : One of those symbols allowed to represent a transition {->|=>|,}
             state_1 : New state
+
         Note: 
             Once a valid transition symbol is chose, it must remains the same for all machine state definitions, otherwise
             compile() method will throw an Exception FSMInconsistentTransition
@@ -351,6 +357,8 @@ class fsm:
         :type s: str
         :return: None
         :rtype: None
+
+
         """
         if (transition_match := self.parse_state.match(s)):
             self.machine_trasitions.append(s)
@@ -361,6 +369,7 @@ class fsm:
     def add_condition(self,t:str, fcond:Union[str,Callable[...,bool]])->None:
         """
         Adds function/expression evaluate named condition. 
+
         :param t: String containing the name of transition described on 
                     state machine.
         :type t: str
@@ -383,6 +392,7 @@ class fsm:
                 To change one condition function/expression, you must dele first with
                 del_condition() method
 
+
         """
         if not t in self.conditions.keys():
             self.conditions[t] = fcond
@@ -393,10 +403,12 @@ class fsm:
     def del_condition(self,cond)->None:
         """
         Deletes existing condition.
+
         :param cond: Existing condition to delete.
         :type cond: str
         :return: None
         :rtype: None
+
         """
         del self.conditions[cond]
 
@@ -418,10 +430,11 @@ class fsm:
         -----------
             FSMUnknownException : If non-defined or general faillure goes on.
             FSMInconsistentTransition : If The transition syntax is not 
-                consistent (different symbols used to)
+            consistent (different symbols used to)
 
         :return: None
         :rtype: None
+
         """
         self.states = sorted(set(
             s
@@ -484,8 +497,10 @@ class fsm:
         Verifies if there are unreachable 
         states from initial state.
         Note: The list of dead states is available on self.dead_states 
+
         :return : True if dead states are present
         :rtype : bool
+
         """
         M = self.get_allPaths()
         self.dead_states.clear() 
@@ -503,9 +518,11 @@ class fsm:
         """
         Calculates accessibility matrix from state transition matrix M nxn: 
         R = M+M^2+M^3+M^4+...+M^n
+
         :return R: Accesibility Matrix R[i,j], if stat j is reachable from 
                 state i, then R[i,j] > 0
         :rtype np.ndarray: nxn Square Matrix
+
         """
         M = np.not_equal(self.tmatrix, None).astype(int)
         N = M.shape[0]
@@ -519,11 +536,12 @@ class fsm:
     def detect_closed_cycle(self, max_len:Optional[int]=None)->Optional[List]:
         """
         Detects if exists a closed cycles on state machine.
+
         :param max_len: max length search on history 
-        :type max_len: None (by default) or integer. If None is chosen, length 
-            equals to history states length.
-        :return : List containing closed cycle. 
-        :rtype : None if no cycles or list 
+        :type max_len: None (by default) or integer. If None is chosen, length equals to history states length.
+        :return: List containing closed cycle. 
+        :rtype: None if no cycles or list 
+
         """
         # Mus filter all None among zeroes
         filtered_history = [past_state for past_state in \
@@ -546,8 +564,9 @@ class fsm:
         :param max_len: max length search on history 
         :type max_len: None (by default) or integer. If None is chosen, length 
             equals to history states length.
-        :return : List containing list of cycles. 
-        :rtype : None if no cycles or list 
+        :return: List containing list of cycles. 
+        :rtype: None if no cycles or list 
+
         """
         filtered_history = [past_state for past_state in \
             filter(lambda x: x is not None, self.state_history)]
@@ -569,10 +588,11 @@ class fsm:
 
     def set_initialState(self, ep:str):
         """
-            Changes entry point (initial state) (first declared by default)
-            :param ep: Initial state name
-            :type ep: str.
-        """
+        Changes entry point (initial state) (first declared by default)
+        :param ep: Initial state name
+        :type ep: str.
+
+         """
         self.entry_point = ep
         self.state = self.index_dict[ep]
         self.state_history.clear()
@@ -580,10 +600,11 @@ class fsm:
     
     def printable_history(self)->str:
         """
-            Creates a printable history of states.
+        Creates a printable history of states.
 
-            :return : History of states 
-            :rtype : str
+        :return : History of states 
+        :rtype : str
+
         """
         ptrbl = StringIO()
         print([self.states[x] for x in self.state_history if x is not None],\
@@ -592,10 +613,11 @@ class fsm:
 
     def step(self)-> None:
         """
-            Executes one step on FSM
+        Executes one step on FSM
 
-            :return None:
-            :rtype : NoneType
+        :return None:
+        :rtype: NoneType
+
         """
         self.true_transitions.clear()
         self.true_transitions_name.clear()
@@ -679,6 +701,7 @@ class fsm:
     def printable_matrix(self, M: Optional[np.ndarray] = None, none_as_zero: bool = False) -> str:
         """
         Pretty print (pandas like) of a viven matrix
+
         """
         if M is None:
             M = self.tmatrix
