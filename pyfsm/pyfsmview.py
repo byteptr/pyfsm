@@ -60,7 +60,7 @@ try:
     from queue import Queue 
     from pyfsm import fsm
     from pyfsm import fsm_bindings
-    from pyfsmgraph import dynamic_graph
+    from pyfsm.pyfsmgraph import dynamic_graph
     import time 
     import json 
 except Exception as e: 
@@ -70,7 +70,8 @@ except Exception as e:
 class pyfsm_http_visualizer: 
     def __init__(self, http_port:int=8000, ws_port:int=8765, ws_host : str = 'localhost',
                  html_template : str ='./template/index.html', mode : str = 'ligth')->None:
-        """ Constructor: 
+        """ 
+        Constructor: 
         
         :param http_port: Port of htttp server
         :type http_port: int 
@@ -86,6 +87,7 @@ class pyfsm_http_visualizer:
 
         :return: None
         :rtype: None
+
         """
         self.http_port = http_port
         self.ws_port = ws_port
@@ -122,6 +124,7 @@ class pyfsm_http_visualizer:
 
         :return: None 
         :rtype: None 
+
         """
         logger.info("_run() method started...")
         # main running loop: while ev_running is set. 
@@ -145,15 +148,15 @@ class pyfsm_http_visualizer:
 
     async def run_fsm(self, run_method_async: bool = True):
         """
-            Runs FSM
+        Runs FSM.
 
-            :param run_method_async: If true, FSM is running on free mode with sleep interval. 
-            Otherwise runs step by step through event self.fsmbind.ev_loop_flag.
-            :type run_method_async: bool
-
-            :return: Coroutine
-            :rtype: class coroutine
+        :param run_method_async: If true, FSM is running on free mode with sleep interval. 
+                                 Otherwise runs step by step through event self.fsmbind.ev_loop_flag.
+        :type run_method_async: bool
+        :return: Coroutine object
+        :rtype: Coroutine
         """
+
         if run_method_async: 
             self.fsmbind.ev_async_flag.set()
         else:
