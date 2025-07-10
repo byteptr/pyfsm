@@ -243,24 +243,31 @@ class pyfsm_http_visualizer:
 
     async def transmit(self):
         while self.fsmbind.ev_running.is_set():
+            dd = dict()
+            if not self.fsmbind.q_input.empty(): 
+                term_msg = ''
+                while not self.fsmbind.q_input.empty():
+                    term_msg += self.fsmbind.q_input.get().strip()+'\n\r' 
+                    await asyncio.sleep(0)
+                dd['term'] = term_msg 
+
             if not self.fsmbind.q_output.empty():
                 _ = self.fsmbind.q_output.get()
                 if self.dgraph is not None:
                     msg = self.dgraph.build_svg()
-                    dd = {
-                        'svg' : msg
-                    }
+                    dd['svg'] = msg
                     # esto hay que mejorar
-                    if not self.fsmbind.q_input.empty(): 
-                        term_msg = ''
-                        while not self.fsmbind.q_input.empty():
-                            term_msg += self.fsmbind.q_input.get() 
-                            await asyncio.sleep(0)
-                        dd['term'] = term_msg 
-                    await self\
-                    .ws_broadcast(\
-                    json.dumps(dd)
-                    )
+                    # if not self.fsmbind.q_input.empty(): 
+                    #     term_msg = ''
+                    #     while not self.fsmbind.q_input.empty():
+                    #         term_msg += self.fsmbind.q_input.get().strip()+'\n\r' 
+                    #         await asyncio.sleep(0)
+                    #     dd['term'] = term_msg 
+            if len(dd) > 0: 
+                await self\
+                .ws_broadcast(\
+                json.dumps(dd)
+                )
             await asyncio.sleep(0.1)
 
     async def start(self):
