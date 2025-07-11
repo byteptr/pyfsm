@@ -249,7 +249,7 @@ class pyfsm_http_visualizer:
                 while not self.fsmbind.q_input.empty():
                     term_msg += self.fsmbind.q_input.get().strip()+'\n\r' 
                     await asyncio.sleep(0)
-                dd['term'] = term_msg 
+                dd['term2'] = term_msg 
 
             if not self.fsmbind.q_output.empty():
                 _ = self.fsmbind.q_output.get()
