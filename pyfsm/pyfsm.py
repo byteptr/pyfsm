@@ -174,7 +174,23 @@ class FSMSysMgs:
 
     @staticmethod
     def error_add_on_transition_action(t:str)->str:
-         return f'Unknown transition {t} for On Transition Action, create first.'
+        return f'Unknown transition {t} for On Transition Action, create first.'
+
+    @staticmethod
+    def warning_on_entry_action(states:str)->str:
+        return f'Warning: undefined states on entry action {states}'
+
+    @staticmethod
+    def warning_on_exit_action(states:str)->str:
+        return f'Warning: Undefined states on exit action {states}'
+
+    @staticmethod
+    def warning_on_state_action(state:str)->str:
+        return f'Warning: Undefined states on state action {state}'
+
+    @staticmethod
+    def warning_on_transition_action(t:str)->str:
+        return f'Warning: undefined transitions on transition action {t}'
 
 # Finite state machine exceptions. 
 # TODO: migrate exception treatement to other file
@@ -198,6 +214,9 @@ class FSMInconsistentTransition(FSMInvalidSyntax):
     pass
 
 class FSMUndefinedTransition(FSMInvalidSyntax):
+    pass
+
+class FSMTransitionEvalError(FSMRuntimeException):
     pass
 
 class FSMNondisjoinctTransitions(FSMRuntimeException):
@@ -323,7 +342,7 @@ class fsm:
         self.actions_on_entry : Dict[str, Union[str, Callable[...,Any]]] = {}
         self.actions_on_exit : Dict[str, Union[str, Callable[...,Any]]] = {}
         self.actions_on_transition : Dict[str, Union[str, Callable[...,Any]]] = {}
-
+        self.invalid_actions : Dict[str, set] = {}
 
     def reset(self)->None:
         """
@@ -544,6 +563,34 @@ class fsm:
             if self.warnings: 
                 warnings.warn(warnmsg) 
 
+        # Check actions
+        remain_on_entry = set(self.actions_on_entry.keys())-set(self.states)
+        remain_on_exit = set(self.actions_on_exit.keys())-set(self.states)
+        remain_on_state = set(self.actions_on_state.keys())-set(self.states)
+        remain_on_transition = set(self.actions_on_transition.keys())-set(self.conditions)
+        self.invalid_actions = {}
+        for m in filter(lambda x: len(x[0]) > 0,
+            (
+                (remain_on_entry, FSMSysMgs.warning_on_entry_action, 'on_entry'),
+                (remain_on_exit, FSMSysMgs.warning_on_exit_action, 'on_exit'),
+                (remain_on_state, FSMSysMgs.warning_on_state_action,'on_state'),
+                (remain_on_transition, FSMSysMgs.warning_on_transition_action, 'on_transition')
+            )
+                        ):
+
+            self.invalid_actions[m[-1]] = m[0]
+
+            # if m[-1] not in self.invalid_actions.keys():
+            #     self.invalid_actions[m[-1]] = [m[0]]
+            # else: 
+            #     self.invalid_actions[m[-1]].append(m[0])
+
+            warnmsg = m[1](' '.join(m[0]))
+            logger.warning(warnmsg)
+
+            if self.warnings: 
+                warnings.warn(warnmsg)
+
     def verify_deadStates(self)->bool:
         """
         Verifies if there are unreachable 
@@ -762,36 +809,16 @@ class fsm:
                 print(debugmsg)
 
     def add_action_on_entry(self, state:str, f:Union[str,Callable[...,Any]])->None:
-        if state in self.states:
-            self.actions_on_entry[state] = f
-        else: 
-            msg = FSMSysMgs.error_add_on_entry_action(state=state) 
-            logger.error(msg)
-            raise FSMUnknownState(msg) 
+        self.actions_on_entry[state] = f
 
     def add_action_on_exit(self,state:str, f:Union[str,Callable[...,Any]])->None:
-        if state in self.states:
-            self.actions_on_exit[state] = f
-        else: 
-            msg = FSMSysMgs.error_add_on_exit_action(state=state)
-            logger.error(msg)
-            raise FSMUnknownState(msg) 
+        self.actions_on_exit[state] = f
 
     def add_action_on_transition(self,t:str, f:Union[str,Callable[...,Any]])->None:
-        if t in self.conditions.keys(): 
-            self.actions_on_transition[t] = f
-        else:
-            msg =FSMSysMgs.error_add_on_transition_action(t=t)
-            logger.error(msg)
-            raise FSMUnknownTransition(msg)
+        self.actions_on_transition[t] = f
 
     def add_action_on_state(self,state:str, f:Union[str,Callable[...,Any]])->None:
-        if state in self.states:
-            self.actions_on_state[state] = f
-        else: 
-            msg = FSMSysMgs.error_add_on_state_action(state=state)
-            logger.error(msg)
-            raise FSMUnknownState(msg) 
+        self.actions_on_state[state] = f
 
     def __repr__(self) -> str:
         msg = f'<class {self.__class__.__name__} at {hex(id(self))}\n\n' 
@@ -924,8 +951,6 @@ if __name__ == "__main__":
     f.add_condition('t2', 'a%10 == 0')
     f.add_condition('t3', 'a%10 == 0')
 
-    f.compile()
-
     # f.add_action_on_entry('A', onEnter_A)
     f.add_action_on_entry('B', onEnter_B)
     f.add_action_on_entry('C', onEnter_C)
@@ -946,6 +971,10 @@ if __name__ == "__main__":
     f.add_action_on_transition('t2', onTransition_t2)
     f.add_action_on_transition('t3', onTransition_t3)
 
+    f.compile()
+
+    # print(f.invalid_actions)
+
     a = 0
 
     for j in range(130): 
@@ -955,6 +984,6 @@ if __name__ == "__main__":
         a += 1
 
     print('done')
-    # print(f)
-    # print("class printed")
+    print(f)
+    print("class printed")
 
