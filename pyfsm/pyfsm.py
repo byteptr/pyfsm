@@ -160,6 +160,22 @@ class FSMSysMgs:
                                  transition : str)->str:
         return f'{state0} {tsymbol} {state1} : {transition}\n'
 
+    @staticmethod
+    def error_add_on_entry_action(state:str)->str:
+        return f'Unknown state {state} for On Entry Action, create state first.'
+
+    @staticmethod
+    def error_add_on_exit_action(state:str)->str:
+        return f'Unknown state {state} for On Exit Action, create state first.'
+
+    @staticmethod
+    def error_add_on_state_action(state:str)->str:
+        return f'Unknown state {state} for On State Action, create state first.'
+
+    @staticmethod
+    def error_add_on_transition_action(t:str)->str:
+         return f'Unknown transition {t} for On Transition Action, create first.'
+
 # Finite state machine exceptions. 
 # TODO: migrate exception treatement to other file
 class FSMException(Exception):
@@ -187,9 +203,23 @@ class FSMUndefinedTransition(FSMInvalidSyntax):
 class FSMNondisjoinctTransitions(FSMRuntimeException):
     pass
 
-class FSMTransitionEvalError(FSMRuntimeException):
+class FSMOnEntryActionError(FSMRuntimeException):
     pass
 
+class FSMOnExitActionError(FSMRuntimeException):
+    pass
+
+class FSMOnTransitionActionError(FSMRuntimeException):
+    pass
+
+class FSMOnStateActionError(FSMRuntimeException):
+    pass
+
+class FSMUnknownState(FSMInvalidSyntax):
+    pass 
+
+class FSMUnknownTransition(FSMInvalidSyntax):
+    pass 
 
 @dataclass 
 class fsm_bindings:
@@ -642,12 +672,16 @@ class fsm:
         :rtype: NoneType
 
         """
-
-        if (f := self.actions_on_state()) is not None:
-            if isinstance(f, str): 
-                eval(f)
-            else: 
-                f()
+        if (f := self.actions_on_state[self.get_state()]) is not None:
+            try: 
+                if isinstance(f, str): 
+                    eval(f)
+                else: 
+                    f()
+            except Exception as e:
+                msg = f"On State {self.get_state()} {e}"
+                logger.error(msg)
+                raise FSMOnEntryActionError(msg)
 
         self.true_transitions.clear()
         self.true_transitions_name.clear()
@@ -685,20 +719,38 @@ class fsm:
         elif len(self.true_transitions) == 0: 
             return 
         else:
-            state_prev = self.get_state()
-            self.state = self.true_transitions[0]
-            self.state_history.append(self.state)
+            state_prev = self.get_state() # get previous state name
+            self.state = self.true_transitions[0] # change state 
+            self.state_history.append(self.state) # get new state name
             state_new = self.get_state()
-            
-            for field, alist in zip((self.true_transitions_name, state_prev, state_new), 
-                         (self.actions_on_transition, self.actions_on_exit, \
-                          self.actions_on_entry)):
-                if (f:= alist.get(field)) is not None:
-                    if isinstance(f, str):
-                        eval(f)
-                    else: 
-                        f()
 
+            # Iterate over 3-tuple containing : 
+            # field : transition name, previous state, new state 
+            # alist : Action List: On Transition (from old to new state), 
+            #         On Exit (from old), On Entry (to new) 
+            # except: Exception type 
+            #       -FSMOnTransitionActionError: Exception call when transition
+            #       -FSMOnExitActionError: Exception call when exits state
+            #       -FSMOnEntryActionError: Exception call when enters state
+            for field, alist, excpt in zip(
+                (self.true_transitions_name[0], state_prev, state_new), 
+                (self.actions_on_transition, self.actions_on_exit, 
+                 self.actions_on_entry),
+                (FSMOnTransitionActionError, FSMOnExitActionError, 
+                 FSMOnEntryActionError)):
+
+                try:
+                    # Check if action is registered
+                    if (f:= alist.get(field)) is not None:
+                        if isinstance(f, str):
+                            eval(f)
+                        else: 
+                            f()
+                # Manage exception if fails
+                except Exception as e: 
+                    msg = f'{field}: {e}'
+                    logger.error(msg)
+                    raise excpt(msg)
 
             debugmsg = FSMSysMgs.debug_machine_transition(
                                 self.states[self.state_history[-2]], 
@@ -709,18 +761,37 @@ class fsm:
             if self.debug: 
                 print(debugmsg)
 
-    def add_acction_on_entry(self, state:str, f:Callable)->None:
-        self.actions_on_entry[state] = f
+    def add_action_on_entry(self, state:str, f:Union[str,Callable[...,Any]])->None:
+        if state in self.states:
+            self.actions_on_entry[state] = f
+        else: 
+            msg = FSMSysMgs.error_add_on_entry_action(state=state) 
+            logger.error(msg)
+            raise FSMUnknownState(msg) 
 
-    def add_action_on_exit(self,state:str, f:Callable)->None:
-        self.actions_on_exit[state] = f
+    def add_action_on_exit(self,state:str, f:Union[str,Callable[...,Any]])->None:
+        if state in self.states:
+            self.actions_on_exit[state] = f
+        else: 
+            msg = FSMSysMgs.error_add_on_exit_action(state=state)
+            logger.error(msg)
+            raise FSMUnknownState(msg) 
 
-    def add_action_on_transition(self,t:str, f:Callable)->None:
-        self.actions_on_transition[t] = f
+    def add_action_on_transition(self,t:str, f:Union[str,Callable[...,Any]])->None:
+        if t in self.conditions.keys(): 
+            self.actions_on_transition[t] = f
+        else:
+            msg =FSMSysMgs.error_add_on_transition_action(t=t)
+            logger.error(msg)
+            raise FSMUnknownTransition(msg)
 
-    def add_action_on_state(self,state:str, f:Callable)->None:
-        self.actions_on_state[state] = f
-
+    def add_action_on_state(self,state:str, f:Union[str,Callable[...,Any]])->None:
+        if state in self.states:
+            self.actions_on_state[state] = f
+        else: 
+            msg = FSMSysMgs.error_add_on_state_action(state=state)
+            logger.error(msg)
+            raise FSMUnknownState(msg) 
 
     def __repr__(self) -> str:
         msg = f'<class {self.__class__.__name__} at {hex(id(self))}\n\n' 
@@ -800,28 +871,81 @@ class fsm:
 
         return output.getvalue()
 
+def onEnter_A():
+    print("Entering state A")
+def onEnter_B():
+    print("Entering state B")
+def onEnter_C():
+    print("Entering state C")
+def onEnter_D():
+    print("Entering state D")
+
+def onState_A():
+    print("On state A")
+def onState_B():
+    print("On state B")
+def onState_C():
+    print("On state C")
+def onState_D():
+    print("On state D")
+
+def onExit_A():
+    print("Exiting state A")
+def onExit_B():
+    print("Exiting state B")
+def onExit_C():
+    print("Exiting state C")
+def onExit_D():
+    print("Exiting state D")
+
+
+def onTransition_t0():
+    print("Transitioning from state t0")
+def onTransition_t1():
+    print("Transitioning from state t1")
+def onTransition_t2():
+    print("Transitioning from state t2")
+def onTransition_t3():
+    print("Transitioning from state t3")
+
 # simple example 
 if __name__ == "__main__": 
 
-    def test_fcn():
-        return True
 
     f = fsm()
 
     f.add_transition('A => B : t0')
     f.add_transition('B => C : t1')
-    f.add_transition('C => A : t3')
-    f.add_transition('D => A : t4')
-    f.add_transition('D => D : t2')
+    f.add_transition('C => D : t2')
+    f.add_transition('D => A : t3')
 
     f.add_condition('t0', 'a%10 == 0')
     f.add_condition('t1', 'a%10 == 0')
-    f.add_condition('t3', 'a%10 == 0')
     f.add_condition('t2', 'a%10 == 0')
-    f.add_condition('t7', 'a%10 == 0')
-    f.add_condition('t4', test_fcn)
-    
+    f.add_condition('t3', 'a%10 == 0')
+
     f.compile()
+
+    # f.add_action_on_entry('A', onEnter_A)
+    f.add_action_on_entry('B', onEnter_B)
+    f.add_action_on_entry('C', onEnter_C)
+    f.add_action_on_entry('D', onEnter_D)
+    
+    f.add_action_on_state('A', onState_A)
+    f.add_action_on_state('B', onState_B)
+    f.add_action_on_state('C', onState_C)
+    f.add_action_on_state('D', onState_D)
+
+    f.add_action_on_exit('A', onExit_A)
+    f.add_action_on_exit('B', onExit_B)
+    f.add_action_on_exit('C', onExit_C)
+    f.add_action_on_exit('D', onExit_D)
+    
+    f.add_action_on_transition('t0', onTransition_t0)
+    f.add_action_on_transition('t1', onTransition_t1)
+    f.add_action_on_transition('t2', onTransition_t2)
+    f.add_action_on_transition('t3', onTransition_t3)
+
     a = 0
 
     for j in range(130): 
@@ -831,6 +955,6 @@ if __name__ == "__main__":
         a += 1
 
     print('done')
-    print(f)
-    print("class printed")
+    # print(f)
+    # print("class printed")
 
