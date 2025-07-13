@@ -5,6 +5,7 @@ Module for the management, representation, and analysis of finite state machines
 ## Features
 
 - Define state machines.
+- Define actions 
 - Generate transition matrices.
 - Analyze connectivity and accessibility between all states.
 - Detect inaccessible or unreachable states.
@@ -46,6 +47,19 @@ To describe correctly FSM in deterministic case, the following conditions must b
     $$\bigcap^{\infty} \delta_{i,m} = 0$$  
       $$s := s_{k} | s_{i} \cap \delta_{i,k}$$  
 1. Transition condition $s_{origin}\to s_{destiny}:t_{condition}$ must be unique. 
+
+## State Machine Actions 
+On FSM there are 4 types of actions:
+1. On enter: When FSM enters new state.  
+1. On state: When FSM is in particular state and step() cycle is called.  
+1. On exit: When FSM exits from current state.  
+1. On transition: When a particular transition condition is met.  
+
+When two or more conditions are met, the order is the following:
+1. On State action callback is called on current state
+1. On Transition action callback is called to current state associated transition condition which is True 
+1. On Exit action callback is called on current state
+1. On Enter action callback is called on new state
 
 ## Dead states detection 
 Dead states are non-reachable states or states described on FSM that are not reachable because all entries on a given column related to this state are zero.  
