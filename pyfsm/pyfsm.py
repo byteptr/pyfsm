@@ -67,6 +67,8 @@ try:
     from typing import Optional
     from typing import Deque
     from typing import Set
+    from typing import Tuple
+    from typing import Dict
     from queue import Queue
     from threading import Event
 except Exception as e: 
@@ -275,7 +277,7 @@ class fsm:
         self.entry_point : Optional[str] = None
         self.conditions = dict()
         self.state : Optional[int] = None
-        self.states = []
+        self.states : List[str] = []
         self.dead_states = []
         self.state_history : Deque[Optional[int]]= deque([None]*history_len, maxlen = history_len) 
         self.history_len = history_len
@@ -286,7 +288,13 @@ class fsm:
         self.debug = False 
         # Class bindings 
         self.binding : Optional[fsm_bindings] = None
-    
+        # actions
+        self.actions_on_state : Dict[str, Union[str, Callable[...,Any]]] = {}
+        self.actions_on_entry : Dict[str, Union[str, Callable[...,Any]]] = {}
+        self.actions_on_exit : Dict[str, Union[str, Callable[...,Any]]] = {}
+        self.actions_on_transition : Dict[str, Union[str, Callable[...,Any]]] = {}
+
+
     def reset(self)->None:
         """
         Resets the finite state machine.
@@ -365,6 +373,20 @@ class fsm:
         else:
             logger.error(FSMSysMgs.error_expresion_match())
             raise FSMInvalidSyntax
+
+    def get_state(self)->str:
+        """
+
+        Get current state name
+
+        :return: Strng containing the current state name 
+        :rtype: str
+
+        """
+        if self.state is not None:
+            return self.states[self.state]
+        else: 
+            return ''
 
     def add_condition(self,t:str, fcond:Union[str,Callable[...,bool]])->None:
         """
@@ -568,6 +590,7 @@ class fsm:
         :rtype: None if no cycles or list 
 
         """
+
         filtered_history = [past_state for past_state in \
             filter(lambda x: x is not None, self.state_history)]
         n = len(filtered_history)
@@ -619,6 +642,13 @@ class fsm:
         :rtype: NoneType
 
         """
+
+        if (f := self.actions_on_state()) is not None:
+            if isinstance(f, str): 
+                eval(f)
+            else: 
+                f()
+
         self.true_transitions.clear()
         self.true_transitions_name.clear()
         t = ''
@@ -637,16 +667,17 @@ class fsm:
 
                     if not self.check_disjoint:
                         break
+
         except Exception as e: 
                 errmsg = FSMSysMgs.error_transition_eval_error(
-                        state = self.states[self.state], transition = t,
+                        state = self.get_state(), transition = t,
                         eval_fcnexp=self.conditions[t])
                 errmsg = str(e) +'\n'+errmsg
                 logger.error(errmsg)
                 raise FSMTransitionEvalError(errmsg) 
 
         if len(self.true_transitions) > 1:
-            errmsg = FSMSysMgs.error_non_disjoint_transitions(self.states[self.state],
+            errmsg = FSMSysMgs.error_non_disjoint_transitions(self.get_state(),
                       transitions=str(self.true_transitions_name))
             logger.error(errmsg)
             raise FSMNondisjoinctTransitions(errmsg)
@@ -654,8 +685,21 @@ class fsm:
         elif len(self.true_transitions) == 0: 
             return 
         else:
+            state_prev = self.get_state()
             self.state = self.true_transitions[0]
             self.state_history.append(self.state)
+            state_new = self.get_state()
+            
+            for field, alist in zip((self.true_transitions_name, state_prev, state_new), 
+                         (self.actions_on_transition, self.actions_on_exit, \
+                          self.actions_on_entry)):
+                if (f:= alist.get(field)) is not None:
+                    if isinstance(f, str):
+                        eval(f)
+                    else: 
+                        f()
+
+
             debugmsg = FSMSysMgs.debug_machine_transition(
                                 self.states[self.state_history[-2]], 
                                 self.tsymbol, 
@@ -664,6 +708,19 @@ class fsm:
             logger.debug(debugmsg)
             if self.debug: 
                 print(debugmsg)
+
+    def add_acction_on_entry(self, state:str, f:Callable)->None:
+        self.actions_on_entry[state] = f
+
+    def add_action_on_exit(self,state:str, f:Callable)->None:
+        self.actions_on_exit[state] = f
+
+    def add_action_on_transition(self,t:str, f:Callable)->None:
+        self.actions_on_transition[t] = f
+
+    def add_action_on_state(self,state:str, f:Callable)->None:
+        self.actions_on_state[state] = f
+
 
     def __repr__(self) -> str:
         msg = f'<class {self.__class__.__name__} at {hex(id(self))}\n\n' 
