@@ -61,6 +61,12 @@ When two or more conditions are met, the order is the following:
 1. On Exit action callback is called on current state
 1. On Enter action callback is called on new state
 
+<p align="center">
+  <img src="img/action_order.png" >
+</p>
+
+
+
 ## Dead states detection 
 Dead states are non-reachable states or states described on FSM that are not reachable because all entries on a given column related to this state are zero.  
 To ensure good FSM description a static check for dead states can be performed through accesibility matrix $R$.
