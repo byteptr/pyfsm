@@ -19,7 +19,8 @@
     .grid-container {
       display: grid;
       height: 100vh;
-      grid-template-columns: 15% 70% 15%;
+      grid-template-columns: minmax(150px, 15%) minmax(300px, 70%) minmax(150px, 15%);
+      /* grid-template-columns: 15% 70% 15%;*/
       grid-template-rows: 1fr 1fr 1fr;
       gap: 0;
     }
@@ -33,6 +34,8 @@
       display: flex;
       justify-content: center;
       align-items: center;
+      min-width: 0; /* permite que el contenido se contraiga y no fuerce el ancho */
+      overflow: hidden; /* opcional para evitar scroll o superposición */
     }
 
     #terminal {
@@ -64,14 +67,17 @@
       grid-column: 1;
       grid-row: 2;
       padding: 1em;
-      height: autoa;
+      height: auto;
       display: flex;
-      justify-content: center;
-      align-items: center;
+      justify-content: flex-start;
+      align-items:flex-start;
       padding-left: 20px;  
-      width: fit-content; /* Evita que se estire */
+      width: auto; /* Evita que se estire */
       /* display: none !important; */
+      min-width: 0; /* permite que el contenido se contraiga y no fuerce el ancho */
+      overflow: hidden; /* opcional para evitar scroll o superposición */
     }
+
 
     #terminal2 .xterm-viewport {
       overflow: hidden !important; /* Fuerza a ocultar el scroll interno */
@@ -94,7 +100,15 @@
       opacity: 0 !important;
       pointer-events: none !important;
     }
-    
+
+    #terminal2 canvas {
+      border-radius: 12px !important;
+      border: 2px solid #505050;     
+    }
+.grid-container > div {
+  border: 1px solid rgba(255, 0, 0, 0.5); /* rojo semitransparente */
+}    
+
   </style>
 </head>
 <body>
@@ -112,23 +126,26 @@
 
     socket.onmessage = (event) => {
       try {
-        const dct = JSON.parse(event.data);
-        if (dct.svg) {
-          document.getElementById("svg-container").innerHTML = dct.svg;
-        }
-        if (dct.style) {
-          const styleTag = document.createElement("style");
-          styleTag.innerHTML = dct.style;
-          document.head.appendChild(styleTag);
-        }
-         if (dct.term) {
-          const result = dct.term.replace(/\s+$/, "");
-          term.write(result + "\r\n");
-        }
-        if (dct.term2) {
-          const result = dct.term2.replace(/\s+$/, "");
-          term2.write(result + "\r\n");
-        }
+
+            const dct = JSON.parse(event.data);
+
+            if (dct.svg) {
+              document.getElementById("svg-container").innerHTML = dct.svg;
+            }
+            if (dct.style) {
+              const styleTag = document.createElement("style");
+              styleTag.innerHTML = dct.style;
+              document.head.appendChild(styleTag);
+            }
+             if (dct.term) {
+              const result = dct.term.replace(/\s+$/, "");
+              term.write(result + "\r\n");
+            }
+            if (dct.term2) {
+              const result = dct.term2.replace(/\s+$/, "");
+              term2.write(result + "\r\n");
+            }
+
       } catch (e) {
         document.getElementById("svg-container").innerHTML = event.data;
       }
@@ -171,7 +188,7 @@
     //   }
     // });
     const term2 = new Terminal({
-      cols: 30,
+      cols: 25,
       rows: 10,
       fontSize: 22,
       scrollback: 0, 

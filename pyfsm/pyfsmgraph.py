@@ -46,7 +46,13 @@ if not logger.hasHandlers():
 import numpy as np
 from dataclasses import dataclass, field
 from graphviz import Digraph
-from numpy._core.numeric import where
+
+# I try to understand where come this nonsense
+try:
+    from numpy._core.numeric import where
+except: 
+    pass
+
 from pyfsm import fsm 
 from typing import Optional
 from typing import Dict
