@@ -43,9 +43,16 @@ SOFTWARE.
 
 __author__    = "Raul ALvarez"
 __email__     = "ralvarezb78@gmail.com"
-__version__   = "1.0.0"
+__version__   = "1.1.0"
 __license__   = "MIT"
-__date__      = "2025-06-15"
+__date__      = "2025-07-14"
+__changelog__ = {
+    "1.0.0" : ['Creation'],
+    "1.1.0" : [
+        'Update README.m',
+        'Added actions',
+        ]
+}
 
 import logging
 logger = logging.getLogger(__name__)
@@ -57,7 +64,6 @@ try:
     import numpy as np 
     import warnings
     import re 
-    import pandas as pd
     from collections import deque
     from dataclasses import dataclass
     from dataclasses import field
@@ -956,7 +962,7 @@ if __name__ == "__main__":
     f.add_condition('t2', 'a%10 == 0')
     f.add_condition('t3', 'a%10 == 0')
 
-    # f.add_action_on_entry('A', onEnter_A)
+    f.add_action_on_entry('A', onEnter_A)
     f.add_action_on_entry('B', onEnter_B)
     f.add_action_on_entry('C', onEnter_C)
     f.add_action_on_entry('D', onEnter_D)

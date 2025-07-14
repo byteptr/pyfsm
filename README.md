@@ -62,15 +62,70 @@ When two or more conditions are met, the order is the following:
 1. On Enter action callback is called on new state
 
 <p align="center">
-  <img src="img/action_order.png" >
+  <img src="img/action_order.png">
+    <div align="center">Actions order transtitioning from state A to B</div>
 </p>
 
+See example below:
 
+```python
+if __name__ == "__main__": 
+    f = fsm()
+    # Define transitions
+    f.add_transition('A => B : t0')
+    f.add_transition('B => C : t1')
+    f.add_transition('C => D : t2')
+    f.add_transition('D => A : t3')
+
+    # Adds condition
+    f.add_condition('t0', 'a%10 == 0')
+    f.add_condition('t1', 'a%10 == 0')
+    f.add_condition('t2', 'a%10 == 0')
+    f.add_condition('t3', 'a%10 == 0')
+    
+    # ******************** Define Actions ********************
+    
+    # On entry (to state) actions 
+    f.add_action_on_entry('A', onEnter_A)
+    f.add_action_on_entry('B', onEnter_B)
+    f.add_action_on_entry('C', onEnter_C)
+    f.add_action_on_entry('D', onEnter_D)
+    
+    # On state actions 
+    f.add_action_on_state('A', onState_A)
+    f.add_action_on_state('B', onState_B)
+    f.add_action_on_state('C', onState_C)
+    f.add_action_on_state('D', onState_D)
+    
+    # On exit (from state) actions
+    f.add_action_on_exit('A', onExit_A)
+    f.add_action_on_exit('B', onExit_B)
+    f.add_action_on_exit('C', onExit_C)
+    f.add_action_on_exit('D', onExit_D)
+
+    # On transition actions
+    f.add_action_on_transition('t0', onTransition_t0)
+    f.add_action_on_transition('t1', onTransition_t1)
+    f.add_action_on_transition('t2', onTransition_t2)
+    f.add_action_on_transition('t3', onTransition_t3)
+
+    # ********************************************************
+
+    f.compile() # Compile
+
+    a = 0
+
+    # Execute 130 times
+    for j in range(130): 
+        f.step()
+        if (j > 100) and (len(f.true_transitions) != 0):
+            break
+        a += 1
+```
 
 ## Dead states detection 
 Dead states are non-reachable states or states described on FSM that are not reachable because all entries on a given column related to this state are zero.  
 To ensure good FSM description a static check for dead states can be performed through accesibility matrix $R$.
-
 
 The accessibility matrix (also known as the reachability matrix) is a matrix that shows which nodes in a graph can reach which other nodes, either directly or through a path of one or more steps.
 If you start with an adjacency matrix $M$, which tells you which nodes are directly connected, the accessibility matrix $R$ tells you whether there is any path at all from node 
