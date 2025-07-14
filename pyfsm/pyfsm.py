@@ -720,7 +720,7 @@ class fsm:
         :rtype: NoneType
 
         """
-        if (f := self.actions_on_state[self.get_state()]) is not None:
+        if (f := self.actions_on_state.get(self.get_state())) is not None:
             try: 
                 if isinstance(f, str): 
                     eval(f)
