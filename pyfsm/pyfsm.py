@@ -67,6 +67,8 @@ try:
     from typing import Optional
     from typing import Deque
     from typing import Set
+    from typing import Tuple
+    from typing import Dict
     from queue import Queue
     from threading import Event
 except Exception as e: 
@@ -158,6 +160,38 @@ class FSMSysMgs:
                                  transition : str)->str:
         return f'{state0} {tsymbol} {state1} : {transition}\n'
 
+    @staticmethod
+    def error_add_on_entry_action(state:str)->str:
+        return f'Unknown state {state} for On Entry Action, create state first.'
+
+    @staticmethod
+    def error_add_on_exit_action(state:str)->str:
+        return f'Unknown state {state} for On Exit Action, create state first.'
+
+    @staticmethod
+    def error_add_on_state_action(state:str)->str:
+        return f'Unknown state {state} for On State Action, create state first.'
+
+    @staticmethod
+    def error_add_on_transition_action(t:str)->str:
+        return f'Unknown transition {t} for On Transition Action, create first.'
+
+    @staticmethod
+    def warning_on_entry_action(states:str)->str:
+        return f'Warning: undefined states on entry action {states}'
+
+    @staticmethod
+    def warning_on_exit_action(states:str)->str:
+        return f'Warning: Undefined states on exit action {states}'
+
+    @staticmethod
+    def warning_on_state_action(state:str)->str:
+        return f'Warning: Undefined states on state action {state}'
+
+    @staticmethod
+    def warning_on_transition_action(t:str)->str:
+        return f'Warning: undefined transitions on transition action {t}'
+
 # Finite state machine exceptions. 
 # TODO: migrate exception treatement to other file
 class FSMException(Exception):
@@ -182,12 +216,29 @@ class FSMInconsistentTransition(FSMInvalidSyntax):
 class FSMUndefinedTransition(FSMInvalidSyntax):
     pass
 
-class FSMNondisjoinctTransitions(FSMRuntimeException):
-    pass
-
 class FSMTransitionEvalError(FSMRuntimeException):
     pass
 
+class FSMNondisjoinctTransitions(FSMRuntimeException):
+    pass
+
+class FSMOnEntryActionError(FSMRuntimeException):
+    pass
+
+class FSMOnExitActionError(FSMRuntimeException):
+    pass
+
+class FSMOnTransitionActionError(FSMRuntimeException):
+    pass
+
+class FSMOnStateActionError(FSMRuntimeException):
+    pass
+
+class FSMUnknownState(FSMInvalidSyntax):
+    pass 
+
+class FSMUnknownTransition(FSMInvalidSyntax):
+    pass 
 
 @dataclass 
 class fsm_bindings:
@@ -275,7 +326,7 @@ class fsm:
         self.entry_point : Optional[str] = None
         self.conditions = dict()
         self.state : Optional[int] = None
-        self.states = []
+        self.states : List[str] = []
         self.dead_states = []
         self.state_history : Deque[Optional[int]]= deque([None]*history_len, maxlen = history_len) 
         self.history_len = history_len
@@ -286,7 +337,13 @@ class fsm:
         self.debug = False 
         # Class bindings 
         self.binding : Optional[fsm_bindings] = None
-    
+        # actions
+        self.actions_on_state : Dict[str, Union[str, Callable[...,Any]]] = {}
+        self.actions_on_entry : Dict[str, Union[str, Callable[...,Any]]] = {}
+        self.actions_on_exit : Dict[str, Union[str, Callable[...,Any]]] = {}
+        self.actions_on_transition : Dict[str, Union[str, Callable[...,Any]]] = {}
+        self.invalid_actions : Dict[str, set] = {}
+
     def reset(self)->None:
         """
         Resets the finite state machine.
@@ -365,6 +422,20 @@ class fsm:
         else:
             logger.error(FSMSysMgs.error_expresion_match())
             raise FSMInvalidSyntax
+
+    def get_state(self)->str:
+        """
+
+        Get current state name
+
+        :return: Strng containing the current state name 
+        :rtype: str
+
+        """
+        if self.state is not None:
+            return self.states[self.state]
+        else: 
+            return ''
 
     def add_condition(self,t:str, fcond:Union[str,Callable[...,bool]])->None:
         """
@@ -492,6 +563,34 @@ class fsm:
             if self.warnings: 
                 warnings.warn(warnmsg) 
 
+        # Check actions
+        remain_on_entry = set(self.actions_on_entry.keys())-set(self.states)
+        remain_on_exit = set(self.actions_on_exit.keys())-set(self.states)
+        remain_on_state = set(self.actions_on_state.keys())-set(self.states)
+        remain_on_transition = set(self.actions_on_transition.keys())-set(self.conditions)
+        self.invalid_actions = {}
+        for m in filter(lambda x: len(x[0]) > 0,
+            (
+                (remain_on_entry, FSMSysMgs.warning_on_entry_action, 'on_entry'),
+                (remain_on_exit, FSMSysMgs.warning_on_exit_action, 'on_exit'),
+                (remain_on_state, FSMSysMgs.warning_on_state_action,'on_state'),
+                (remain_on_transition, FSMSysMgs.warning_on_transition_action, 'on_transition')
+            )
+                        ):
+
+            self.invalid_actions[m[-1]] = m[0]
+
+            # if m[-1] not in self.invalid_actions.keys():
+            #     self.invalid_actions[m[-1]] = [m[0]]
+            # else: 
+            #     self.invalid_actions[m[-1]].append(m[0])
+
+            warnmsg = m[1](' '.join(m[0]))
+            logger.warning(warnmsg)
+
+            if self.warnings: 
+                warnings.warn(warnmsg)
+
     def verify_deadStates(self)->bool:
         """
         Verifies if there are unreachable 
@@ -568,6 +667,7 @@ class fsm:
         :rtype: None if no cycles or list 
 
         """
+
         filtered_history = [past_state for past_state in \
             filter(lambda x: x is not None, self.state_history)]
         n = len(filtered_history)
@@ -619,6 +719,17 @@ class fsm:
         :rtype: NoneType
 
         """
+        if (f := self.actions_on_state[self.get_state()]) is not None:
+            try: 
+                if isinstance(f, str): 
+                    eval(f)
+                else: 
+                    f()
+            except Exception as e:
+                msg = f"On State {self.get_state()} {e}"
+                logger.error(msg)
+                raise FSMOnEntryActionError(msg)
+
         self.true_transitions.clear()
         self.true_transitions_name.clear()
         t = ''
@@ -637,16 +748,17 @@ class fsm:
 
                     if not self.check_disjoint:
                         break
+
         except Exception as e: 
                 errmsg = FSMSysMgs.error_transition_eval_error(
-                        state = self.states[self.state], transition = t,
+                        state = self.get_state(), transition = t,
                         eval_fcnexp=self.conditions[t])
                 errmsg = str(e) +'\n'+errmsg
                 logger.error(errmsg)
                 raise FSMTransitionEvalError(errmsg) 
 
         if len(self.true_transitions) > 1:
-            errmsg = FSMSysMgs.error_non_disjoint_transitions(self.states[self.state],
+            errmsg = FSMSysMgs.error_non_disjoint_transitions(self.get_state(),
                       transitions=str(self.true_transitions_name))
             logger.error(errmsg)
             raise FSMNondisjoinctTransitions(errmsg)
@@ -654,8 +766,39 @@ class fsm:
         elif len(self.true_transitions) == 0: 
             return 
         else:
-            self.state = self.true_transitions[0]
-            self.state_history.append(self.state)
+            state_prev = self.get_state() # get previous state name
+            self.state = self.true_transitions[0] # change state 
+            self.state_history.append(self.state) # get new state name
+            state_new = self.get_state()
+
+            # Iterate over 3-tuple containing : 
+            # field : transition name, previous state, new state 
+            # alist : Action List: On Transition (from old to new state), 
+            #         On Exit (from old), On Entry (to new) 
+            # except: Exception type 
+            #       -FSMOnTransitionActionError: Exception call when transition
+            #       -FSMOnExitActionError: Exception call when exits state
+            #       -FSMOnEntryActionError: Exception call when enters state
+            for field, alist, excpt in zip(
+                (self.true_transitions_name[0], state_prev, state_new), 
+                (self.actions_on_transition, self.actions_on_exit, 
+                 self.actions_on_entry),
+                (FSMOnTransitionActionError, FSMOnExitActionError, 
+                 FSMOnEntryActionError)):
+
+                try:
+                    # Check if action is registered
+                    if (f:= alist.get(field)) is not None:
+                        if isinstance(f, str):
+                            eval(f)
+                        else: 
+                            f()
+                # Manage exception if fails
+                except Exception as e: 
+                    msg = f'{field}: {e}'
+                    logger.error(msg)
+                    raise excpt(msg)
+
             debugmsg = FSMSysMgs.debug_machine_transition(
                                 self.states[self.state_history[-2]], 
                                 self.tsymbol, 
@@ -664,6 +807,18 @@ class fsm:
             logger.debug(debugmsg)
             if self.debug: 
                 print(debugmsg)
+
+    def add_action_on_entry(self, state:str, f:Union[str,Callable[...,Any]])->None:
+        self.actions_on_entry[state] = f
+
+    def add_action_on_exit(self,state:str, f:Union[str,Callable[...,Any]])->None:
+        self.actions_on_exit[state] = f
+
+    def add_action_on_transition(self,t:str, f:Union[str,Callable[...,Any]])->None:
+        self.actions_on_transition[t] = f
+
+    def add_action_on_state(self,state:str, f:Union[str,Callable[...,Any]])->None:
+        self.actions_on_state[state] = f
 
     def __repr__(self) -> str:
         msg = f'<class {self.__class__.__name__} at {hex(id(self))}\n\n' 
@@ -743,28 +898,83 @@ class fsm:
 
         return output.getvalue()
 
+def onEnter_A():
+    print("Entering state A")
+def onEnter_B():
+    print("Entering state B")
+def onEnter_C():
+    print("Entering state C")
+def onEnter_D():
+    print("Entering state D")
+
+def onState_A():
+    print("On state A")
+def onState_B():
+    print("On state B")
+def onState_C():
+    print("On state C")
+def onState_D():
+    print("On state D")
+
+def onExit_A():
+    print("Exiting state A")
+def onExit_B():
+    print("Exiting state B")
+def onExit_C():
+    print("Exiting state C")
+def onExit_D():
+    print("Exiting state D")
+
+
+def onTransition_t0():
+    print("Transitioning from state t0")
+def onTransition_t1():
+    print("Transitioning from state t1")
+def onTransition_t2():
+    print("Transitioning from state t2")
+def onTransition_t3():
+    print("Transitioning from state t3")
+
 # simple example 
 if __name__ == "__main__": 
 
-    def test_fcn():
-        return True
 
     f = fsm()
 
     f.add_transition('A => B : t0')
     f.add_transition('B => C : t1')
-    f.add_transition('C => A : t3')
-    f.add_transition('D => A : t4')
-    f.add_transition('D => D : t2')
+    f.add_transition('C => D : t2')
+    f.add_transition('D => A : t3')
 
     f.add_condition('t0', 'a%10 == 0')
     f.add_condition('t1', 'a%10 == 0')
-    f.add_condition('t3', 'a%10 == 0')
     f.add_condition('t2', 'a%10 == 0')
-    f.add_condition('t7', 'a%10 == 0')
-    f.add_condition('t4', test_fcn)
+    f.add_condition('t3', 'a%10 == 0')
+
+    # f.add_action_on_entry('A', onEnter_A)
+    f.add_action_on_entry('B', onEnter_B)
+    f.add_action_on_entry('C', onEnter_C)
+    f.add_action_on_entry('D', onEnter_D)
     
+    f.add_action_on_state('A', onState_A)
+    f.add_action_on_state('B', onState_B)
+    f.add_action_on_state('C', onState_C)
+    f.add_action_on_state('D', onState_D)
+
+    f.add_action_on_exit('A', onExit_A)
+    f.add_action_on_exit('B', onExit_B)
+    f.add_action_on_exit('C', onExit_C)
+    f.add_action_on_exit('D', onExit_D)
+    
+    f.add_action_on_transition('t0', onTransition_t0)
+    f.add_action_on_transition('t1', onTransition_t1)
+    f.add_action_on_transition('t2', onTransition_t2)
+    f.add_action_on_transition('t3', onTransition_t3)
+
     f.compile()
+
+    # print(f.invalid_actions)
+
     a = 0
 
     for j in range(130): 
