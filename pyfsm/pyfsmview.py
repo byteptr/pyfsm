@@ -125,25 +125,29 @@ class pyfsm_http_visualizer:
         :rtype: None 
 
         """
-        logger.info("_run() method started...")
-        # main running loop: while ev_running is set. 
-        while self.fsmbind.ev_running.is_set():
-            if self.fsmbind.ev_async_flag.is_set: 
-                if self.fsmbind.ev_loop_flag.is_set():
-                    self.fsm_instance.step()
-                    if len(self.fsm_instance.true_transitions_name) > 0:
-                        self.fsmbind.q_output.put(True)
-                        # print("Transition to queue")
-                time.sleep(self.fsmbind.sleep_time)
-            else:
-                #otherwise if no free running option is set, 
-                # we check if loop flag is set, then executes one step
-                # finally clears the flag and waits for some amount of time
-                if self.fsmbind.ev_loop_flag.is_set():
-                    self.fsm_instance.step()
-                    self.fsmbind.ev_loop_flag.clear()
-                time.sleep(self.fsmbind.sleep_async)
-
+        try: 
+            logger.info("_run() method started...")
+            # main running loop: while ev_running is set. 
+            while self.fsmbind.ev_running.is_set():
+                if self.fsmbind.ev_async_flag.is_set: 
+                    if self.fsmbind.ev_loop_flag.is_set():
+                        self.fsm_instance.step()
+                        if len(self.fsm_instance.true_transitions_name) > 0:
+                            self.fsmbind.q_output.put(True)
+                            # print("Transition to queue")
+                    time.sleep(self.fsmbind.sleep_time)
+                else:
+                    #otherwise if no free running option is set, 
+                    # we check if loop flag is set, then executes one step
+                    # finally clears the flag and waits for some amount of time
+                    if self.fsmbind.ev_loop_flag.is_set():
+                        self.fsm_instance.step()
+                        self.fsmbind.ev_loop_flag.clear()
+                    time.sleep(self.fsmbind.sleep_async)
+        except KeyboardInterrupt:
+            print('Thread _run() capture Ctrl-C')
+        # except Exception as e:
+        #     raise e
 
     async def run_fsm(self, run_method_async: bool = True):
         """
@@ -305,7 +309,7 @@ if __name__ == '__main__':
         async def printstate(self)->None:
             print("Prinstate running...")
             while True:
-                print(f'{self.a} {self.state}')
+                # print(f'{self.a} {self.state}')
                 self.binding.q_input.put(f'{self.a} {self.state}')
 
                 await asyncio.sleep(0.1)
