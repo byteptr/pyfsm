@@ -43,9 +43,16 @@ SOFTWARE.
 
 __author__    = "Raul ALvarez"
 __email__     = "ralvarezb78@gmail.com"
-__version__   = "1.0.0"
+__version__   = "1.1.0"
 __license__   = "MIT"
-__date__      = "2025-06-15"
+__date__      = "2025-07-14"
+__changelog__ = {
+    "1.0.0" : ['Creation'],
+    "1.1.0" : [
+        'Update README.m',
+        'Added actions',
+        ]
+}
 
 import logging
 logger = logging.getLogger(__name__)
@@ -57,7 +64,6 @@ try:
     import numpy as np 
     import warnings
     import re 
-    import pandas as pd
     from collections import deque
     from dataclasses import dataclass
     from dataclasses import field
@@ -580,11 +586,6 @@ class fsm:
 
             self.invalid_actions[m[-1]] = m[0]
 
-            # if m[-1] not in self.invalid_actions.keys():
-            #     self.invalid_actions[m[-1]] = [m[0]]
-            # else: 
-            #     self.invalid_actions[m[-1]].append(m[0])
-
             warnmsg = m[1](' '.join(m[0]))
             logger.warning(warnmsg)
 
@@ -837,18 +838,28 @@ class fsm:
 
         msg += '\n'
         ivars = sorted(set(self.__dict__.keys()) - set(reprnames))
-        custom_repr = ('state','state_history','tmatrix')
+        custom_repr = ('state','state_history','tmatrix','actions_on_exit',
+                       'actions_on_state','actions_on_entry',
+                       'actions_on_transition')
+
         for v in ivars:
             if v not in custom_repr:
                 msg += f'{v} : {self.__dict__[v]}\n'
             elif v == 'state': 
                 msg += f'{v} : {self.states[self.__dict__[v]]}\n'
             elif v == 'state_history':
-                msg += f'{v} : {[self.states[s] for s in filter(lambda x:x is not None, self.state_history)]}\n'
+                msg += f'{v} : {[self.states[s] for s in filter(\
+                lambda x:x is not None, self.state_history)]}\n'
             elif v == 'tmatrix': 
                 msg += f'\n{v}:\n\n' + self.printable_matrix(none_as_zero=True)+'\n\n'
                 msg += f'\n{"Accesibility Matrix"}:\n\n' + \
                     self.printable_matrix(M = self.get_allPaths(),none_as_zero=True)+'\n\n'
+            elif v.startswith('actions_on'): 
+                msg += v+':\n'
+                for k,val in self.__dict__[v].items(): 
+                    msg += f'\t{k}: {val}\n'
+                msg += '\n'
+
         msg = msg.rstrip()
         msg += ' >\n'
         return msg
@@ -951,7 +962,7 @@ if __name__ == "__main__":
     f.add_condition('t2', 'a%10 == 0')
     f.add_condition('t3', 'a%10 == 0')
 
-    # f.add_action_on_entry('A', onEnter_A)
+    f.add_action_on_entry('A', onEnter_A)
     f.add_action_on_entry('B', onEnter_B)
     f.add_action_on_entry('C', onEnter_C)
     f.add_action_on_entry('D', onEnter_D)
