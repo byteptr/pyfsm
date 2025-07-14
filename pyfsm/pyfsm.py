@@ -580,11 +580,6 @@ class fsm:
 
             self.invalid_actions[m[-1]] = m[0]
 
-            # if m[-1] not in self.invalid_actions.keys():
-            #     self.invalid_actions[m[-1]] = [m[0]]
-            # else: 
-            #     self.invalid_actions[m[-1]].append(m[0])
-
             warnmsg = m[1](' '.join(m[0]))
             logger.warning(warnmsg)
 
@@ -837,18 +832,28 @@ class fsm:
 
         msg += '\n'
         ivars = sorted(set(self.__dict__.keys()) - set(reprnames))
-        custom_repr = ('state','state_history','tmatrix')
+        custom_repr = ('state','state_history','tmatrix','actions_on_exit',
+                       'actions_on_state','actions_on_entry',
+                       'actions_on_transition')
+
         for v in ivars:
             if v not in custom_repr:
                 msg += f'{v} : {self.__dict__[v]}\n'
             elif v == 'state': 
                 msg += f'{v} : {self.states[self.__dict__[v]]}\n'
             elif v == 'state_history':
-                msg += f'{v} : {[self.states[s] for s in filter(lambda x:x is not None, self.state_history)]}\n'
+                msg += f'{v} : {[self.states[s] for s in filter(\
+                lambda x:x is not None, self.state_history)]}\n'
             elif v == 'tmatrix': 
                 msg += f'\n{v}:\n\n' + self.printable_matrix(none_as_zero=True)+'\n\n'
                 msg += f'\n{"Accesibility Matrix"}:\n\n' + \
                     self.printable_matrix(M = self.get_allPaths(),none_as_zero=True)+'\n\n'
+            elif v.startswith('actions_on'): 
+                msg += v+':\n'
+                for k,val in self.__dict__[v].items(): 
+                    msg += f'\t{k}: {val}\n'
+                msg += '\n'
+
         msg = msg.rstrip()
         msg += ' >\n'
         return msg
