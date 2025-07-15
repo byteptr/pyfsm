@@ -1,0 +1,39 @@
+
+#terminal2 {
+  grid-column: 1;
+  grid-row: 2;
+  padding: 1em 0 0 20px;
+  height: auto;
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  width: auto;
+  min-width: 0;
+  overflow: hidden;
+}
+
+#terminal2 .xterm-viewport {
+  overflow: hidden !important;
+}
+
+#terminal2 .xterm-viewport::-webkit-scrollbar {
+  display: none;
+}
+
+#terminal2 .xterm-cursor-block,
+#terminal2 .xterm-cursor-bar,
+#terminal2 .xterm-cursor-underline {
+  background-color: transparent !important;
+  border-left: none !important;
+  outline: none !important;
+}
+
+#terminal2 .xterm-cursor-layer {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+#terminal2 canvas {
+  border-radius: 12px !important;
+  border: 2px solid #505050;
+}
