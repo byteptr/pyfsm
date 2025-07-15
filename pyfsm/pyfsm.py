@@ -350,6 +350,11 @@ class fsm:
         self.actions_on_transition : Dict[str, Union[str, Callable[...,Any]]] = {}
         self.invalid_actions : Dict[str, set] = {}
 
+        self.action_on_step_enter : Optional[Union[str, Callable[...,Any]]] = None
+        self.action_on_step_change : Optional[Union[str, Callable[...,Any]]] = None
+        self.action_on_step_remain : Optional[Union[str, Callable[...,Any]]] = None
+        self.action_on_step_leave : Optional[Union[str, Callable[...,Any]]] = None
+
     def reset(self)->None:
         """
         Resets the finite state machine.
@@ -720,6 +725,14 @@ class fsm:
         :rtype: NoneType
 
         """
+        try: 
+            if isinstance(self.action_on_step_enter, str):
+                eval(self.action_on_step_enter)
+            elif callable(self.action_on_step_enter): 
+                self.action_on_step_enter()
+        except Exception as e:
+            raise e
+
         if (f := self.actions_on_state.get(self.get_state())) is not None:
             try: 
                 if isinstance(f, str): 
@@ -764,7 +777,15 @@ class fsm:
             logger.error(errmsg)
             raise FSMNondisjoinctTransitions(errmsg)
 
-        elif len(self.true_transitions) == 0: 
+        elif len(self.true_transitions) == 0:            
+            try: 
+                if isinstance(self.action_on_step_remain, str):
+                    eval(self.action_on_step_remain)
+                elif callable(self.action_on_step_remain): 
+                    self.action_on_step_remain()
+            except Exception as e:
+                raise e
+
             return 
         else:
             state_prev = self.get_state() # get previous state name
@@ -805,9 +826,26 @@ class fsm:
                                 self.tsymbol, 
                                 self.states[self.state_history[-1]], 
                                 self.true_transitions_name[0])
+
             logger.debug(debugmsg)
             if self.debug: 
                 print(debugmsg)
+                
+            try: 
+                if isinstance(self.action_on_step_change, str):
+                    eval(self.action_on_step_change)
+                elif callable(self.action_on_step_change): 
+                    self.action_on_step_change()
+            except Exception as e:
+                raise e
+                
+        try: 
+            if isinstance(self.action_on_step_leave, str):
+                eval(self.action_on_step_leave)
+            elif callable(self.action_on_step_leave): 
+                self.action_on_step_leave()
+        except Exception as e:
+            raise e
 
     def add_action_on_entry(self, state:str, f:Union[str,Callable[...,Any]])->None:
         self.actions_on_entry[state] = f
